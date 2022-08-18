@@ -26,8 +26,8 @@ class RequestHandler:
 
     def _make_request(self, action, **kwargs):
 
-        url = f'{RequestHandler.url_base}{action}?key={self._api_key}&'
-        url += '&'.join([f'{k}={v}' for k, v in kwargs.items()])
+        url = f'{RequestHandler.url_base}{action}?key={self._api_key}&' \
+         + '&'.join([f'{k}={v}' for k, v in kwargs.items()])
 
         return convert_json(requests.request("GET", url, headers={}, data={}).text)
 
