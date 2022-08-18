@@ -54,19 +54,35 @@ class RequestHandler:
         """
         return self._make_request(action='get-schedule', **{'tour': tour, 'file_format': file_format})
 
+    @staticmethod
+    def _is_player(player_object: dict, target_first_name: str, target_last_name: str,
+                   target_player_id: int) -> bool:
+
+        if target_player_id and player_object.get('dg_id') == int(target_player_id):
+            return True
+
+        if target_first_name and target_last_name:
+            names = [name.lower().strip() for name in player_object.get('player_name').split(',')]
+
+            if target_first_name.lower() in names and target_last_name.lower() in names:
+                return True
+        return False
+
     def get_player_data(self, first_name=None, last_name=None, player_id=None):
         # TODO binary search here at some point
         # TODO support for just first name or last and if conflicts present
-        #      message use full name and present ids as alternative
+        #      tell user to use full name and present ids as alternative
         #      If two players have same full name then use ID.
-        # TODO generally this function needs work
 
-        for player in self._get_player_list():
-            names = [name.lower().strip() for name in player.get('player_name').split(',')]
-            id_ = player.get('dg_id')
+        for player_object in self._get_player_list():
+            if self._is_player(player_object, first_name, last_name, player_id):
+                return player_object
 
-            if first_name.lower() in names and last_name.lower() in names:
-                return player
+    def get_player_tee_times(self, first_name=None, last_name=None, player_id=None):
+        for player_object in self._get_field_updates().get('field'):
+            if self._is_player(player_object, first_name, last_name, player_id):
+                return {k: v for k, v in player_object.items() if 'teetime' in k
+                        or k in ['dg_id', 'player_name']}
 
     def get_current_tournament(self):
         pass
@@ -83,6 +99,15 @@ class RequestHandler:
     def tee_times(self):
         pass
 
+    def get_live_stats(self):
+        pass
+
+    def get_favorite_players(self):
+        pass
+
+    def is_playing(self):
+        # is the player playing -> bool
+        pass
 
 rh = RequestHandler()
 
