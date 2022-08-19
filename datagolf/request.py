@@ -1,6 +1,7 @@
+import json
 import requests
 
-from .utils import open_json_file, convert_json
+from .utils import open_json_file
 
 
 class RequestHandler:
@@ -22,7 +23,10 @@ class RequestHandler:
         """
         url = f'{RequestHandler._url_base}{action}?key={self._api_key}&' \
               + '&'.join([f'{k}={v}' for k, v in kwargs.items()])
-        return convert_json(requests.request("GET", url, headers={}, data={}).text)
+        resp = requests.request("GET", url, headers={}, data={})
+        if resp.status_code == 404:
+            raise ValueError('Invalid url')  # TODO make exception classes
+        return json.loads(resp.text)
 
     def _get_player_list(self, file_format='json'):
         """Provides players who've played on a "major tour" since 2018
@@ -38,8 +42,14 @@ class RequestHandler:
         """
         return self._make_request(action='field-updates', **{'tour': tour, 'file_format': file_format})
 
-    def _get_tour_schedules(self, file_format='json', tour='pga'):
+    def _get_tour_schedules(self,  tour='pga', file_format='json'):
         return self._make_request(action='get-schedule', **{'tour': tour, 'file_format': file_format})
+
+    def _get_live_stats(self, **kwargs):
+        """Returns live strokes-gained and traditional stats for
+        every player during PGA Tour tournaments.
+        """
+        return self._make_request(action='preds/live-tournament-stats', **kwargs)
 
     @staticmethod
     def _is_player(player_object: dict, target_name,
@@ -49,49 +59,40 @@ class RequestHandler:
               account for one name only or longer name i.e. 3 names; possible?
               len(target_name) > 1 is bad
         """
-        if target_player_id and player_object.get('dg_id') == int(target_player_id):
-            return True
-        if len(target_name) > 1:
-            name = set([name.lower().strip() for name in player_object.get('player_name').split(',')])
+        if target_player_id:
+            return True if player_object.get('dg_id') == int(target_player_id) else False
         else:
-            raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
-        return True if target_name == name else False
+            if target_name and len(target_name) > 1:
+                name = set([name.lower().strip() for name in player_object.get('player_name').split(',')])
+            else:
+                raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
+            return True if target_name == name else False
 
-    def get_player_data(self, name=None, player_id=None):
+    def get_player_data(self, name=None, player_id=None) -> dict:
         for player_object in self._get_player_list():
-            if self._is_player(player_object, set([name.lower().strip() for name in name.split()]), player_id):
+            if self._is_player(player_object,
+                               set([name.lower().strip() for name in name.split()]) if name else None, player_id):
                 return player_object
 
-    def get_player_tee_times(self, name=None, player_id=None):
+    def get_player_field_data(self, name=None, player_id=None) -> dict:
         for player_object in self._get_field_updates().get('field'):
-            if self._is_player(player_object, set([name.lower().strip() for name in name.split()]), player_id):
-                return {k: v for k, v in player_object.items() if 'teetime' in k
-                        or k in ['dg_id', 'player_name']}
+            if self._is_player(player_object,
+                               set([name.lower().strip() for name in name.split()]) if name else None, player_id):
+                return player_object   # DATACLASS????
 
-    def get_current_tournament(self):
-        pass
+    def get_player_tee_times(self, name=None, player_id=None) -> dict:
+        return {k: v for k, v in self.get_player_field_data(name, player_id).items()
+                if 'teetime' in k or k in ['dg_id', 'player_name']}
 
-    def get_current_round(self):
-        pass
+    def get_player_starting_hole(self, name=None, player_id=None):
+        return {k: v for k, v in self.get_player_field_data(name, player_id).items()
+                if k in ['dg_id', 'player_name', 'start_hole']}
 
-    def get_field_data(self):
-        pass
+    def get_current_tournament(self, **kwargs) -> str:
+        return self._get_field_updates(**kwargs).get('event_name')
 
-    def get_starting_hole(self):
-        pass
-
-    def tee_times(self):
-        pass
-
-    def get_live_stats(self):
-        pass
-
-    def get_favorite_players(self):
-        pass
-
-    def is_playing(self):
-        # is the player playing -> bool
-        pass
+    def get_current_round(self, **kwargs):
+        return self._get_field_updates(**kwargs).get('current_round')
 
 rh = RequestHandler()
 

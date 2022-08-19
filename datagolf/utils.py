@@ -11,7 +11,3 @@ def open_json_file(filename: str) -> dict:
 def write_json_file(filename: str, data: dict) -> None:
     pass
 
-
-def convert_json(text: str) -> dict:
-    return json.loads(text)
-
