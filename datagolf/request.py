@@ -1,22 +1,13 @@
 import requests
+
 from .utils import open_json_file, convert_json
-
-import json
-
-# TODO
-#   add meta data for potential items
-#   remove defaults from function def
-#   implement local cache. Check if anything has updated before grabbing stuff from api
-#    have local favorite players to get quick results for players of interest
-#    maybe use dataclass for player object for comparison down the line
-#    May need to split up request logic into separate structs.
-#       for example, FieldUpdatesHandler
-#        or may need to use data models
 
 
 class RequestHandler:
+    """Handler for requests against the datagolf API.
+    """
 
-    url_base = 'https://feeds.datagolf.com/'
+    _url_base = 'https://feeds.datagolf.com/'
 
     def __init__(self, **kwargs):
         try:
@@ -25,62 +16,55 @@ class RequestHandler:
             print('Correct secrets.json file')
 
     def _make_request(self, action, **kwargs):
-
-        url = f'{RequestHandler.url_base}{action}?key={self._api_key}&' \
-         + '&'.join([f'{k}={v}' for k, v in kwargs.items()])
-
+        """Base function for building a request.
+        API appears to only provide endpoints for GET methods.
+        Payloads are delivered via querystring.
+        """
+        url = f'{RequestHandler._url_base}{action}?key={self._api_key}&' \
+              + '&'.join([f'{k}={v}' for k, v in kwargs.items()])
         return convert_json(requests.request("GET", url, headers={}, data={}).text)
 
-    def _get_field_updates(self, tour='pga', file_format='json'):
-        """
-        :param tour: pga (default), euro, kft, opp, alt
-        :param file_format: json (default), csv
-        """
-        return self._make_request(action='field-updates', **{'tour': tour, 'file_format': file_format})
-
     def _get_player_list(self, file_format='json'):
-        """
-        :param file_format: json (default), csv
-        :return:
+        """Provides players who've played on a "major tour" since 2018
+        or are playing on a major tour this week. IDs, country, amateur status included.
+        file_format is json (default), csv
         """
         return self._make_request(action='get-player-list', **{'file_format': file_format})
 
-    def _get_tour_schedules(self, file_format='json', tour='pga'):
+    def _get_field_updates(self, tour='pga', file_format='json'):
+        """Provides field updates on WDs, Monday Qualifiers, tee times.
+        tour can be pga (default), euro, kft, opp, alt
+        file_format is json (default), csv
         """
+        return self._make_request(action='field-updates', **{'tour': tour, 'file_format': file_format})
 
-        :param file_format: json (default), csv
-        :param tour: pga (default), euro, kft
-        :return:
-        """
+    def _get_tour_schedules(self, file_format='json', tour='pga'):
         return self._make_request(action='get-schedule', **{'tour': tour, 'file_format': file_format})
 
     @staticmethod
-    def _is_player(player_object: dict, target_first_name: str, target_last_name: str,
+    def _is_player(player_object: dict, target_name,
                    target_player_id: int) -> bool:
-
+        """Player data comparisons.
+        TODO use dataclass for comparisons? Models for this player object stuff
+              account for one name only or longer name i.e. 3 names; possible?
+              len(target_name) > 1 is bad
+        """
         if target_player_id and player_object.get('dg_id') == int(target_player_id):
             return True
+        if len(target_name) > 1:
+            name = set([name.lower().strip() for name in player_object.get('player_name').split(',')])
+        else:
+            raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
+        return True if target_name == name else False
 
-        if target_first_name and target_last_name:
-            names = [name.lower().strip() for name in player_object.get('player_name').split(',')]
-
-            if target_first_name.lower() in names and target_last_name.lower() in names:
-                return True
-        return False
-
-    def get_player_data(self, first_name=None, last_name=None, player_id=None):
-        # TODO binary search here at some point
-        # TODO support for just first name or last and if conflicts present
-        #      tell user to use full name and present ids as alternative
-        #      If two players have same full name then use ID.
-
+    def get_player_data(self, name=None, player_id=None):
         for player_object in self._get_player_list():
-            if self._is_player(player_object, first_name, last_name, player_id):
+            if self._is_player(player_object, set([name.lower().strip() for name in name.split()]), player_id):
                 return player_object
 
-    def get_player_tee_times(self, first_name=None, last_name=None, player_id=None):
+    def get_player_tee_times(self, name=None, player_id=None):
         for player_object in self._get_field_updates().get('field'):
-            if self._is_player(player_object, first_name, last_name, player_id):
+            if self._is_player(player_object, set([name.lower().strip() for name in name.split()]), player_id):
                 return {k: v for k, v in player_object.items() if 'teetime' in k
                         or k in ['dg_id', 'player_name']}
 
