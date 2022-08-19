@@ -26,6 +26,8 @@ class RequestHandler:
         resp = requests.request("GET", url, headers={}, data={})
         if resp.status_code == 404:
             raise ValueError('Invalid url')  # TODO make exception classes
+        if 'file_format=csv' in resp.request.url:
+            return [item.split(',') for item in resp.text.split('\n')]
         return json.loads(resp.text)
 
     def _get_player_list(self, file_format='json'):
@@ -83,6 +85,11 @@ class RequestHandler:
     def get_player_tee_times(self, name=None, player_id=None) -> dict:
         return {k: v for k, v in self.get_player_field_data(name, player_id).items()
                 if 'teetime' in k or k in ['dg_id', 'player_name']}
+
+    def get_player_tee_times(self, **kwargs) -> list:
+        return [{k: v for k, v in self.get_player_field_data(name=name).items()
+                if 'teetime' in k or k in ['dg_id', 'player_name']} for name in kwargs.get('names')]
+
 
     def get_player_starting_hole(self, name=None, player_id=None):
         return {k: v for k, v in self.get_player_field_data(name, player_id).items()
