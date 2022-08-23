@@ -30,12 +30,12 @@ class RequestHandler:
             return [item.split(',') for item in resp.text.split('\n')]
         return json.loads(resp.text)
 
-    def _get_player_list(self, file_format='json'):
+    def _get_player_list(self, **kwargs):
         """Provides players who've played on a "major tour" since 2018
         or are playing on a major tour this week. IDs, country, amateur status included.
         file_format is json (default), csv
         """
-        return self._make_request(action='get-player-list', **{'file_format': file_format})
+        return self._make_request(action='get-player-list', **kwargs)
 
     def _get_field_updates(self, tour='pga', file_format='json'):
         """Provides field updates on WDs, Monday Qualifiers, tee times.
@@ -54,27 +54,38 @@ class RequestHandler:
         return self._make_request(action='preds/live-tournament-stats', **kwargs)
 
     @staticmethod
-    def _is_player(player_object: dict, target_name,
-                   target_player_id: int) -> bool:
+    def _is_player(player_object: dict, **kwargs) -> bool:
         """Player data comparisons.
         TODO use dataclass for comparisons? Models for this player object stuff
               account for one name only or longer name i.e. 3 names; possible?
               len(target_name) > 1 is bad
         """
-        if target_player_id:
-            return True if player_object.get('dg_id') == int(target_player_id) else False
-        else:
-            if target_name and len(target_name) > 1:
+        target_name = kwargs.get('target_name')
+        target_id = kwargs.get('target_id')
+        if target_id:
+            return True if player_object.get('dg_id') == int(target_id) else False
+        if target_name:
+            if len(target_name) > 1:
                 name = set([name.lower().strip() for name in player_object.get('player_name').split(',')])
+                return True if target_name == name else False
             else:
                 raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
-            return True if target_name == name else False
+        return False
 
-    def get_player_data(self, name=None, player_id=None) -> dict:
-        for player_object in self._get_player_list():
-            if self._is_player(player_object,
-                               set([name.lower().strip() for name in name.split()]) if name else None, player_id):
-                return player_object
+    def get_player_data(self, names: list[str]=None, player_ids: list[int] = None, **kwargs) -> list[dict]:
+        player_data = []  # TODO make list comp?
+        for player_object in self._get_player_list(**kwargs):
+            if names:
+                for name in names:
+                    if self._is_player(player_object,
+                                       target_name=set([name_.lower().strip() for name_ in name.split()])):
+                        player_data.append(player_object)
+            #if player_ids:
+
+        return player_data
+
+    def get_player_id(self, names: list[str], **kwargs):
+        pass
 
     def get_player_field_data(self, name=None, player_id=None) -> dict:
         for player_object in self._get_field_updates().get('field'):
