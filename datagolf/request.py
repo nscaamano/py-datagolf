@@ -3,6 +3,7 @@ import requests
 
 from .utils import open_json_file
 
+_ERROR = 'error'
 
 class RequestHandler:
     """Handler for requests against the datagolf API.
@@ -72,7 +73,7 @@ class RequestHandler:
                 raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
         return False
 
-    def get_player_data(self, names: list[str]=None, player_ids: list[int] = None, **kwargs) -> list[dict]:
+    def get_player_data(self, names: list[str] = None, player_ids: list[int] = None, **kwargs) -> list[dict]:
         player_data = []  # TODO make list comp?
         for player_object in self._get_player_list(**kwargs):
             if names:
@@ -88,7 +89,10 @@ class RequestHandler:
         pass
 
     def get_player_field_data(self, name=None, player_id=None) -> dict:
-        for player_object in self._get_field_updates().get('field'):
+        data = self._get_field_updates()
+        if _ERROR in data.keys():
+            return data.get(_ERROR)
+        for player_object in data.get('field'):
             if self._is_player(player_object,
                                set([name.lower().strip() for name in name.split()]) if name else None, player_id):
                 return player_object   # DATACLASS????
@@ -100,7 +104,6 @@ class RequestHandler:
     def get_player_tee_times(self, **kwargs) -> list:
         return [{k: v for k, v in self.get_player_field_data(name=name).items()
                 if 'teetime' in k or k in ['dg_id', 'player_name']} for name in kwargs.get('names')]
-
 
     def get_player_starting_hole(self, name=None, player_id=None):
         return {k: v for k, v in self.get_player_field_data(name, player_id).items()
