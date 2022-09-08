@@ -2,8 +2,10 @@ import json
 import requests
 
 from .utils import open_json_file
+from .golf_models import Player
 
 _ERROR = 'error'
+
 
 class RequestHandler:
     """Handler for requests against the datagolf API.
@@ -17,6 +19,7 @@ class RequestHandler:
         except FileNotFoundError as e:
             print('Correct secrets.json file')
 
+    # TODO default value for action ?
     def _make_request(self, action, **kwargs):
         """Base function for building a request.
         API appears to only provide endpoints for GET methods.
@@ -31,28 +34,34 @@ class RequestHandler:
             return [item.split(',') for item in resp.text.split('\n')]
         return json.loads(resp.text)
 
-    def _get_player_list(self, **kwargs):
+    def get_player_list(self, **kwargs):
         """Provides players who've played on a "major tour" since 2018
         or are playing on a major tour this week. IDs, country, amateur status included.
         file_format is json (default), csv
         """
         return self._make_request(action='get-player-list', **kwargs)
 
-    def _get_field_updates(self, tour='pga', file_format='json'):
+    def get_field_updates(self, tour='pga', file_format='json'):
         """Provides field updates on WDs, Monday Qualifiers, tee times.
         tour can be pga (default), euro, kft, opp, alt
         file_format is json (default), csv
         """
         return self._make_request(action='field-updates', **{'tour': tour, 'file_format': file_format})
 
-    def _get_tour_schedules(self,  tour='pga', file_format='json'):
+    def get_tour_schedules(self,  tour='pga', file_format='json'):
         return self._make_request(action='get-schedule', **{'tour': tour, 'file_format': file_format})
 
-    def _get_live_stats(self, **kwargs):
+    def get_live_stats(self, **kwargs):
         """Returns live strokes-gained and traditional stats for
         every player during PGA Tour tournaments.
         """
         return self._make_request(action='preds/live-tournament-stats', **kwargs)
+
+
+class GeneralHandler:
+
+    def __init__(self, request_handler: RequestHandler):
+        self._request_handler = request_handler
 
     @staticmethod
     def _is_player(player_object: dict, **kwargs) -> bool:
@@ -60,27 +69,37 @@ class RequestHandler:
         TODO use dataclass for comparisons? Models for this player object stuff
               account for one name only or longer name i.e. 3 names; possible?
               len(target_name) > 1 is bad
+        # TODO support for just one name
+        #   provide list of all players with that name
         """
+        if player_object.get('dg_id') == 19895:
+            print('foo')
         target_name = kwargs.get('target_name')
         target_id = kwargs.get('target_id')
         if target_id:
             return True if player_object.get('dg_id') == int(target_id) else False
         if target_name:
-            if len(target_name) > 1:
-                name = set([name.lower().strip() for name in player_object.get('player_name').split(',')])
-                return True if target_name == name else False
-            else:
-                raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
+            #if len(target_name) > 1:
+            name = tuple(name.lower().strip() for name in player_object.get('player_name').split(','))
+            if len(target_name) == 1:
+                if target_name[0] in name:
+                    return True
+            elif len(target_name) == 2:
+                if set(target_name) == set(name):
+                    return True
+            #return True if target_name == name else False
+            #else:
+               #raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
         return False
 
     def get_player_data(self, names: list[str] = None, player_ids: list[int] = None, **kwargs) -> list[dict]:
         player_data = []  # TODO make list comp?
-        for player_object in self._get_player_list(**kwargs):
+        for player_object in self._request_handler.get_player_list(**kwargs):
             if names:
                 for name in names:
-                    if self._is_player(player_object,
-                                       target_name=set([name_.lower().strip() for name_ in name.split()])):
-                        player_data.append(player_object)
+                    name = tuple(name_.lower().strip() for name_ in name.split())
+                    if self._is_player(player_object, target_name=name):
+                        player_data.append(Player(**player_object))
             #if player_ids:
 
         return player_data
@@ -115,6 +134,8 @@ class RequestHandler:
     def get_current_round(self, **kwargs):
         return self._get_field_updates(**kwargs).get('current_round')
 
-rh = RequestHandler()
+
+#rh = RequestHandler()
+gh = GeneralHandler(RequestHandler())
 
 
