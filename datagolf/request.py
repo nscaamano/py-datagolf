@@ -41,15 +41,20 @@ class RequestHandler:
         """
         return self._make_request(action='get-player-list', **kwargs)
 
-    def get_field_updates(self, tour='pga', file_format='json'):
+    def get_field_updates(self, **kwargs):
         """Provides field updates on WDs, Monday Qualifiers, tee times.
         tour can be pga (default), euro, kft, opp, alt
         file_format is json (default), csv
         """
-        return self._make_request(action='field-updates', **{'tour': tour, 'file_format': file_format})
+        return self._make_request(action='field-updates', **kwargs)
 
-    def get_tour_schedules(self,  tour='pga', file_format='json'):
-        return self._make_request(action='get-schedule', **{'tour': tour, 'file_format': file_format})
+    def get_tour_schedules(self,  **kwargs):
+        """Current season schedules for the primary tours (PGA, European, KFT).
+        Includes event names/ids, course names/ids, and location
+        (city/country and latitude, longitude coordinates) data for select tours.
+        tour (optional) can be pga (default), euro, kft
+        """
+        return self._make_request(action='get-schedule', **kwargs)
 
     def get_live_stats(self, **kwargs):
         """Returns live strokes-gained and traditional stats for
@@ -92,7 +97,7 @@ class GeneralHandler:
                #raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
         return False
 
-    def get_player_data(self, names: list[str] = None, player_ids: list[int] = None, **kwargs) -> list[dict]:
+    def get_player_data(self, names: list[str] = None, player_ids: list[int] = None, **kwargs) -> list[Player]:
         player_data = []  # TODO make list comp?
         for player_object in self._request_handler.get_player_list(**kwargs):
             if names:
@@ -100,42 +105,26 @@ class GeneralHandler:
                     name = tuple(name_.lower().strip() for name_ in name.split())
                     if self._is_player(player_object, target_name=name):
                         player_data.append(Player(**player_object))
-            #if player_ids:
-
         return player_data
 
-    def get_player_id(self, names: list[str], **kwargs):
-        pass
-
-    def get_player_field_data(self, name=None, player_id=None) -> dict:
-        data = self._get_field_updates()
+    def get_player_field_data(self, names: list, **kwargs) -> dict:
+        player_ids = [player.dg_id for player in self.get_player_data(names=names)]
+        data = self._request_handler.get_field_updates(**kwargs)
         if _ERROR in data.keys():
             return data.get(_ERROR)
-        for player_object in data.get('field'):
-            if self._is_player(player_object,
-                               set([name.lower().strip() for name in name.split()]) if name else None, player_id):
-                return player_object   # DATACLASS????
+        output_data = {k: v for k, v in data.items() if k != 'field'}
+        for object_ in data.get('field'):
+            if object_['dg_id'] in player_ids:
+                output_data[object_['player_name']] = object_
+        return output_data
 
-    def get_player_tee_times(self, name=None, player_id=None) -> dict:
-        return {k: v for k, v in self.get_player_field_data(name, player_id).items()
-                if 'teetime' in k or k in ['dg_id', 'player_name']}
+    def get_current_tournament(self, **kwargs) -> dict:
+        return {k: v for k,v in self._request_handler.get_field_updates(**kwargs).items() if k == 'event_name'}
 
-    def get_player_tee_times(self, **kwargs) -> list:
-        return [{k: v for k, v in self.get_player_field_data(name=name).items()
-                if 'teetime' in k or k in ['dg_id', 'player_name']} for name in kwargs.get('names')]
-
-    def get_player_starting_hole(self, name=None, player_id=None):
-        return {k: v for k, v in self.get_player_field_data(name, player_id).items()
-                if k in ['dg_id', 'player_name', 'start_hole']}
-
-    def get_current_tournament(self, **kwargs) -> str:
-        return self._get_field_updates(**kwargs).get('event_name')
-
-    def get_current_round(self, **kwargs):
-        return self._get_field_updates(**kwargs).get('current_round')
+    def get_current_round(self, **kwargs) -> dict:
+        return {k: v for k, v in self._request_handler.get_field_updates(**kwargs).items() if k == 'current_round'}
 
 
-#rh = RequestHandler()
 gh = GeneralHandler(RequestHandler())
 
 
