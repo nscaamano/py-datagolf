@@ -59,6 +59,14 @@ class RequestHandler:
     def get_live_stats(self, **kwargs):
         """Returns live strokes-gained and traditional stats for
         every player during PGA Tour tournaments.
+        stats optional
+        stats (optional) can be list of sg_putt, sg_arg, sg_app, sg_ott, sg_t2g,
+        sg_total, distance, accuracy, gir, prox_fw, prox_rgh, scrambling.
+
+        round (optional) event_avg, 1, 2, 3, 4
+
+        display (optional) specifies how stats are displayed and
+        can be  value (default), rank
         """
         return self._make_request(action='preds/live-tournament-stats', **kwargs)
 
@@ -107,23 +115,37 @@ class GeneralHandler:
                         player_data.append(Player(**player_object))
         return player_data
 
-    def get_player_field_data(self, names: list, **kwargs) -> dict:
+    def _general_filtered_get(self, request_func, exception_field, names: list, **kwargs):
         player_ids = [player.dg_id for player in self.get_player_data(names=names)]
-        data = self._request_handler.get_field_updates(**kwargs)
+        data = request_func(**kwargs)
         if _ERROR in data.keys():
             return data.get(_ERROR)
-        output_data = {k: v for k, v in data.items() if k != 'field'}
-        for object_ in data.get('field'):
+        output_data = {k: v for k, v in data.items() if k != exception_field}
+        for object_ in data.get(exception_field):
             if object_['dg_id'] in player_ids:
                 output_data[object_['player_name']] = object_
         return output_data
 
+    def get_player_field_data(self, names: list, **kwargs) -> dict:
+        return self._general_filtered_get(request_func=self._request_handler.get_field_updates,
+                                          exception_field='field',
+                                          names=names, **kwargs)
+
     def get_current_tournament(self, **kwargs) -> dict:
-        return {k: v for k,v in self._request_handler.get_field_updates(**kwargs).items() if k == 'event_name'}
+        return {k: v for k, v in self._request_handler.get_field_updates(**kwargs).items() if k == 'event_name'}
 
     def get_current_round(self, **kwargs) -> dict:
         return {k: v for k, v in self._request_handler.get_field_updates(**kwargs).items() if k == 'current_round'}
 
+    def get_player_live_stats(self, names: list, **kwargs) -> dict:
+        """stats should be a string comma separated list
+           i.e. stats='sg_putt,sg_app'
+        """
+        if 'stats' in kwargs.keys():
+            assert ' ' not in kwargs['stats'], "stats should not have spaces. i.e. stats='sg_putt,sg_app'"
+        return self._general_filtered_get(request_func=self._request_handler.get_live_stats,
+                                          exception_field='live_stats',
+                                          names=names, **kwargs)
 
 gh = GeneralHandler(RequestHandler())
 
