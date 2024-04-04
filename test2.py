@@ -21,7 +21,17 @@ def misc_test():
     print(bad_data_test_player)
 
 def get_player_test():
-    for player in api.common.get_player_data(names=['jordan']): print(player, '\n' + '-'*14)
+    tests = [
+        #['jordan'],
+        #['finau', 'tony', '14242'],
+        #['jordan spieth', 'spieth'],
+        ['spieth', 'woods']
+    ]
+    
+    #for test in tests: 
+        #for player in api.common.get_player_data(player_names=test, player_name='tony finau ', player_id=5321): print(player, '\n' + '-'*14)
+        
+    print(api.common.get_player_data(player_ids=[5321, 11676] ))
     
 
 
@@ -33,5 +43,4 @@ def run_tests(api):
 
 
 if __name__ == '__main__':
-
     run_tests(api)

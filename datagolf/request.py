@@ -1,5 +1,6 @@
 import json
 import requests
+from collections import OrderedDict
 
 from .utils import open_json_file
 from .models import Player
@@ -77,43 +78,41 @@ class CommonHandler:
         self._request_handler = request_handler
 
     @staticmethod
-    def _is_player(player_object: dict, **kwargs) -> bool:
-        """Player data comparisons.
-        TODO use dataclass for comparisons? Models for this player object stuff
-              account for one name only or longer name i.e. 3 names; possible?
-              len(target_name) > 1 is bad
-        # TODO support for just one name
-        #   provide list of all players with that name
-        """
-        if player_object.get('dg_id') == 19895:
-            print('foo')
-        target_name = kwargs.get('target_name')
-        target_id = kwargs.get('target_id')
-        if target_id:
-            return True if player_object.get('dg_id') == int(target_id) else False
-        if target_name:
-            #if len(target_name) > 1:
-            name = tuple(name.lower().strip() for name in player_object.get('player_name').split(','))
-            if len(target_name) == 1:
-                if target_name[0] in name:
-                    return True
-            elif len(target_name) == 2:
-                if set(target_name) == set(name):
-                    return True
-            #return True if target_name == name else False
-            #else:
-               #raise ValueError('Invalid Name Format')  # TODO make own exceptions classes
-        return False
-
-    def get_player_data(self, names: list[str] = None, player_ids: list[int] = None, **kwargs) -> list[Player]:
-        player_data = []  # TODO make list comp?
-        for player_object in self._request_handler.get_player_list(**kwargs):
-            if names:
-                for name in names:
-                    name = tuple(name_.lower().strip() for name_ in name.split())
-                    if self._is_player(player_object, target_name=name):
-                        player_data.append(Player(**player_object))
-        return player_data
+    def _is_player(player: Player, target_player_name: str = None, target_player_id: int = None) -> bool:
+        # TODO support for ids 
+        # could probably combine ids and names into same list and iterate over.
+        # check name and id simultaneously 
+        
+        # for now cannot have both populatated
+        #assert not target_player_id and not target_player_name
+        if target_player_name and target_player_id: raise Exception('Both id and name cannot be populated at the same time.')
+        
+        is_found = True 
+        if target_player_name:
+            for name_part in set(name_part.lower().strip() for name_part in target_player_name.split()): 
+                if name_part not in player.player_name.lower(): is_found = False 
+                
+        if target_player_id and not int(target_player_id) == player.dg_id: is_found = False
+            
+        return is_found
+        
+    def get_player_data(self, player_name: str = None, player_id: int = None, 
+                        player_names: list[str] = None, player_ids: list[int] = None, 
+                        **kwargs) -> list[Player]:
+        target_players = []
+        for player in self._request_handler.get_player_list(**kwargs):
+            player = Player(**player) # could throw exception 
+            if player_names: # might not even need this if check because if no true then no append 
+                for name in player_names: 
+                    if CommonHandler._is_player(player=player, target_player_name=name): target_players.append(player)
+                    #name = tuple(name_.lower().strip() for name_ in name.split())
+                    #if self._is_player(player=player, target_name=name): player_data.append(Player(**player))
+            if player_ids:
+                for id_ in player_ids:
+                    if CommonHandler._is_player(player=player, target_player_id=id_): target_players.append(player)
+            if player_name and CommonHandler._is_player(player=player, target_player_name=player_name): target_players.append(player)
+            if player_id and CommonHandler._is_player(player=player, target_player_id=player_id): target_players.append(player)
+        return list(OrderedDict.fromkeys(target_players))
 
     def _general_filtered_get(self, request_func, exception_field, names: list, **kwargs):
         player_ids = [player.dg_id for player in self.get_player_data(names=names)]
