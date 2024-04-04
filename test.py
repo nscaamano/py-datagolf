@@ -1,7 +1,7 @@
 from datagolf.request import gh
 from tabulate import tabulate
 
-from datagolf.golf_models import Player
+from datagolf.models import Player
 
 
 def run_tests():

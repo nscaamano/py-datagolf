@@ -2,7 +2,7 @@ import json
 import requests
 
 from .utils import open_json_file
-from .golf_models import Player
+from .models import Player
 
 _ERROR = 'error'
 
@@ -71,7 +71,7 @@ class RequestHandler:
         return self._make_request(action='preds/live-tournament-stats', **kwargs)
 
 
-class GeneralHandler:
+class CommonHandler:
 
     def __init__(self, request_handler: RequestHandler):
         self._request_handler = request_handler
@@ -146,7 +146,3 @@ class GeneralHandler:
         return self._general_filtered_get(request_func=self._request_handler.get_live_stats,
                                           exception_field='live_stats',
                                           names=names, **kwargs)
-
-gh = GeneralHandler(RequestHandler())
-
-
