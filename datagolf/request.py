@@ -3,7 +3,7 @@ import requests
 from collections import OrderedDict
 
 from .utils import open_json_file
-from .models import Player
+from .models import Player, PlayerFieldUpdate, PlayerFieldUpdates
 
 _ERROR = 'error'
 
@@ -76,53 +76,54 @@ class CommonHandler:
         self._request_handler = request_handler
 
     @staticmethod
-    def _is_player(player: Player, target_player_name: str = None, target_player_id: int = None) -> bool:        
-        assert not (target_player_name and target_player_id), 'Both id and name cannot be populated at the same time.'
-        #if target_player_name and target_player_id: raise Exception('Both id and name cannot be populated at the same time.')
-        
+    def _name_comparison(name: str, target_name: str = '') -> bool:        
+        if target_name == '': return False
         is_found = True 
-        if target_player_name:
-            for name_part in set(name_part.lower().strip() for name_part in target_player_name.split()): 
-                if name_part not in player.player_name.lower(): is_found = False 
-                
-        #if target_player_id and not int(target_player_id) == player.dg_id: is_found = False
-        is_found = False if target_player_id and not int(target_player_id) == player.dg_id else is_found
-            
+        if target_name:
+            for name_part in set(name_part.lower().strip() for name_part in target_name.split()): 
+                if name_part not in name.lower(): is_found = False             
         return is_found
+    
+    def get_players(self, dg_id: int = 0, dg_ids: list[int] = [], 
+                       name: str = '', names: list[str] = [], **kwargs) -> list[Player]:
+        players = [Player(**player) for player in self._request_handler.get_player_list(**kwargs)]
         
-    def get_player_data(self, player_name: str = None, player_id: int = None, 
-                        player_names: list[str] = None, player_ids: list[int] = None, 
-                        **kwargs) -> list[Player]:
-        target_players = []
-        for player in self._request_handler.get_player_list(**kwargs):
-            player = Player(**player) # could throw exception 
-            if player_names: # might not even need this if check because if no true then no append 
-                for name in player_names: 
-                    if CommonHandler._is_player(player=player, target_player_name=name): target_players.append(player)
-                    #name = tuple(name_.lower().strip() for name_ in name.split())
-                    #if self._is_player(player=player, target_name=name): player_data.append(Player(**player))
-            if player_ids:
-                for id_ in player_ids:
-                    if CommonHandler._is_player(player=player, target_player_id=id_): target_players.append(player)
-            if player_name and CommonHandler._is_player(player=player, target_player_name=player_name): target_players.append(player)
-            if player_id and CommonHandler._is_player(player=player, target_player_id=player_id): target_players.append(player)
-        return list(OrderedDict.fromkeys(target_players))
+        if all(not _ for _ in (dg_id, dg_ids, name, names)):
+            return players 
+        
+        target_data: list[Player] = []
+        dg_ids = [*dg_ids, dg_id] if dg_id else dg_ids
+        names = [*names, name] if name  else names
+        for player in players:
+            for id_ in dg_ids:
+                if id_ == player.dg_id:
+                    target_data.append(player)
+            for name_ in names:
+                if CommonHandler._name_comparison(name=player.player_name, target_name=name_): target_data.append(player)
+                        
+        return list(OrderedDict.fromkeys(target_data)) if target_data else players
+  
+    def get_player_field_updates(self, dg_id: int = 0, dg_ids: list[int] = [], 
+                                 name: str = '', names: list[str] = [], tour: str = 'pga') -> PlayerFieldUpdates:
 
-    def _general_filtered_get(self, request_func, exception_field, names: list, **kwargs):
-        player_ids = [player.dg_id for player in self.get_player_data(names=names)]
-        data = request_func(**kwargs)
-        if _ERROR in data.keys():
-            return data.get(_ERROR)
-        output_data = {k: v for k, v in data.items() if k != exception_field}
-        for object_ in data.get(exception_field):
-            if object_['dg_id'] in player_ids:
-                output_data[object_['player_name']] = object_
-        return output_data
-
-    def get_player_field_data(self, names: list, **kwargs) -> dict:
-        return self._general_filtered_get(request_func=self._request_handler.get_field_updates,
-                                          exception_field='field',
-                                          names=names, **kwargs)
+        player_field_updates: PlayerFieldUpdates = self._request_handler.get_field_updates(tour=tour)
+        player_field_updates['field'] = [PlayerFieldUpdate(**field_update) for field_update in player_field_updates.get('field')]
+        
+        if all(not _ for _ in (dg_id, dg_ids, name, names)):
+            return player_field_updates
+        
+        target_data: list[PlayerFieldUpdate] = []
+        dg_ids = [*dg_ids, dg_id] if dg_id else dg_ids
+        names = [*names, name] if name  else names
+        for player_field_update in player_field_updates['field']:
+            for dg_id in dg_ids:
+                if dg_id == player_field_update.dg_id:
+                    target_data.append(player_field_update)
+            for name_ in names:
+                if CommonHandler._name_comparison(name=player_field_update.player_name, target_name=name_): target_data.append(player_field_update)
+        
+        player_field_updates['field'] = list(OrderedDict.fromkeys(target_data))         
+        return player_field_updates   
 
     def get_current_tournament(self, **kwargs) -> dict:
         return {k: v for k, v in self._request_handler.get_field_updates(**kwargs).items() if k == 'event_name'}
@@ -130,6 +131,7 @@ class CommonHandler:
     def get_current_round(self, **kwargs) -> dict:
         return {k: v for k, v in self._request_handler.get_field_updates(**kwargs).items() if k == 'current_round'}
 
+    '''
     def get_player_live_stats(self, names: list, **kwargs) -> dict:
         """stats should be a string comma separated list
            i.e. stats='sg_putt,sg_app'
@@ -139,3 +141,4 @@ class CommonHandler:
         return self._general_filtered_get(request_func=self._request_handler.get_live_stats,
                                           exception_field='live_stats',
                                           names=names, **kwargs)
+    '''
