@@ -23,8 +23,6 @@ class RequestHandler:
     # TODO default value for action ?
     def _make_request(self, action, **kwargs):
         """Base function for building a request.
-        API appears to only provide endpoints for GET methods.
-        Payloads are delivered via querystring.
         """
         url = f'{RequestHandler._url_base}{action}?key={self._api_key}&' \
               + '&'.join([f'{k}={v}' for k, v in kwargs.items()])
@@ -78,21 +76,17 @@ class CommonHandler:
         self._request_handler = request_handler
 
     @staticmethod
-    def _is_player(player: Player, target_player_name: str = None, target_player_id: int = None) -> bool:
-        # TODO support for ids 
-        # could probably combine ids and names into same list and iterate over.
-        # check name and id simultaneously 
-        
-        # for now cannot have both populatated
-        #assert not target_player_id and not target_player_name
-        if target_player_name and target_player_id: raise Exception('Both id and name cannot be populated at the same time.')
+    def _is_player(player: Player, target_player_name: str = None, target_player_id: int = None) -> bool:        
+        assert not (target_player_name and target_player_id), 'Both id and name cannot be populated at the same time.'
+        #if target_player_name and target_player_id: raise Exception('Both id and name cannot be populated at the same time.')
         
         is_found = True 
         if target_player_name:
             for name_part in set(name_part.lower().strip() for name_part in target_player_name.split()): 
                 if name_part not in player.player_name.lower(): is_found = False 
                 
-        if target_player_id and not int(target_player_id) == player.dg_id: is_found = False
+        #if target_player_id and not int(target_player_id) == player.dg_id: is_found = False
+        is_found = False if target_player_id and not int(target_player_id) == player.dg_id else is_found
             
         return is_found
         
