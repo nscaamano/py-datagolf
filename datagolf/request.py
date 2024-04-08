@@ -130,6 +130,16 @@ class CommonHandler:
 
     def get_current_round(self, **kwargs) -> dict:
         return {k: v for k, v in self._request_handler.get_field_updates(**kwargs).items() if k == 'current_round'}
+    
+    def get_player_live_stats(): pass 
+    
+    def get_player_live_score(): pass 
+    
+    def get_player_live_predictions(): pass 
+    
+    def get_player_combined_stats_predictions(): pass 
+    
+    
 
     '''
     def get_player_live_stats(self, names: list, **kwargs) -> dict:
