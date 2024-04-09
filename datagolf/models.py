@@ -1,5 +1,6 @@
-from pydantic import BaseModel, confloat, conint
+from pydantic import BaseModel, confloat, conint, 
 from datetime import date 
+from typing import List
 
 class Player(BaseModel):
     dg_id: int 
@@ -52,4 +53,15 @@ class PlayerFieldUpdate(BaseModel):
 class PlayerFieldUpdates(BaseModel):
     current_round: int 
     event_name: str 
-    field: list[PlayerFieldUpdate]
+    field: List[PlayerFieldUpdate]
+    
+    
+class PlayerRank(BaseModel):
+    am: conint(ge=0, le=1)
+    country: str 
+    datagolf_rank: int 
+    dg_id: int # fk 
+    dg_skill_estimate: float 
+    owgr_rank: int 
+    player_name: str 
+    primary_tour: str 

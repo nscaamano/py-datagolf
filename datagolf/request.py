@@ -54,18 +54,31 @@ class RequestHandler:
         tour (optional) can be pga (default), euro, kft
         """
         return self._make_request(action='get-schedule', **kwargs)
+    
+    def get_data_golf_rankings(self, **kwargs):
+        """Returns the top 500 players in the current DG rankings, 
+           along with each player's skill estimate and respective OWGR rank.
+        Args:
+            file_format (str, optional): Defaults to 'json'.
+        """
+        return self._make_request(action='preds/get-dg-rankings', **kwargs)
 
     def get_live_stats(self, **kwargs):
         """Returns live strokes-gained and traditional stats for
         every player during PGA Tour tournaments.
-        stats optional
-        stats (optional) can be list of sg_putt, sg_arg, sg_app, sg_ott, sg_t2g,
-        sg_total, distance, accuracy, gir, prox_fw, prox_rgh, scrambling.
+        
+        stats (optional): Comma-separated list of statistics to be returned.
+            options: sg_putt, sg_arg, sg_app, sg_ott, sg_t2g, sg_bs, sg_total, 
+            distance, accuracy, gir, prox_fw, prox_rgh, scrambling
 
-        round (optional) event_avg, 1, 2, 3, 4
+        round (optional) e
+            options: event_avg, 1, 2, 3, 4
 
-        display (optional) specifies how stats are displayed and
-        can be  value (default), rank
+        display (optional) specifies how stats are displayed
+            options: value (default), rank
+        
+        file_format (optional) 
+            options: json (default), csv
         """
         return self._make_request(action='preds/live-tournament-stats', **kwargs)
 
