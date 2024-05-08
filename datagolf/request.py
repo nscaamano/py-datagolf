@@ -20,11 +20,10 @@ class RequestHandler:
         except FileNotFoundError as e:
             print('Correct secrets.json file')
 
-    # TODO default value for action ?
-    def _make_request(self, action, **kwargs):
+    def _make_request(self, endpoint, **kwargs):
         """Base function for building a request.
         """
-        url = f'{RequestHandler._url_base}{action}?key={self._api_key}&' \
+        url = f'{RequestHandler._url_base}{endpoint}?key={self._api_key}&' \
               + '&'.join([f'{k}={v}' for k, v in kwargs.items()])
         resp = requests.request("GET", url, headers={}, data={})
         if resp.status_code == 404:
@@ -33,35 +32,48 @@ class RequestHandler:
             return [item.split(',') for item in resp.text.split('\n')]
         return json.loads(resp.text)
 
-    def get_player_list(self, **kwargs):
+    def player_list(self, **kwargs):
         """Provides players who've played on a "major tour" since 2018
         or are playing on a major tour this week. IDs, country, amateur status included.
         file_format is json (default), csv
         """
-        return self._make_request(action='get-player-list', **kwargs)
+        return self._make_request(endpoint='get-player-list', **kwargs)
 
-    def get_field_updates(self, **kwargs):
+    def field_updates(self, **kwargs):
         """Provides field updates on WDs, Monday Qualifiers, tee times.
         tour can be pga (default), euro, kft, opp, alt
         file_format is json (default), csv
         """
-        return self._make_request(action='field-updates', **kwargs)
+        return self._make_request(endpoint='field-updates', **kwargs)
 
-    def get_tour_schedules(self,  **kwargs):
+    def tour_schedules(self,  **kwargs):
         """Current season schedules for the primary tours (PGA, European, KFT).
         Includes event names/ids, course names/ids, and location
         (city/country and latitude, longitude coordinates) data for select tours.
         tour (optional) can be pga (default), euro, kft
         """
-        return self._make_request(action='get-schedule', **kwargs)
+        return self._make_request(endpoint='get-schedule', **kwargs)
     
-    def get_data_golf_rankings(self, **kwargs):
+    def data_golf_rankings(self, **kwargs):
         """Returns the top 500 players in the current DG rankings, 
            along with each player's skill estimate and respective OWGR rank.
         Args:
             file_format (str, optional): Defaults to 'json'.
         """
-        return self._make_request(action='preds/get-dg-rankings', **kwargs)
+        return self._make_request(endpoint='preds/get-dg-rankings', **kwargs)
+    
+    def pre_tournament_predictions(self, **kwargs):
+        """Returns full-field probabilistic forecasts for the upcoming tournament on PGA, European, 
+        and Korn Ferry Tours from both our baseline and baseline + course history & fit models. 
+        Probabilities provided for various finish positions (make cut, top 20, top 5, win, etc.).
+
+        Args:
+           tour (str, optional): pga (default), euro, kft, opp (opposite field PGA TOUR event), alt
+           add_position (list[str], optional): 1, 2, 3 .... 48, 49, 50
+           odds_format (str, optional): percent (default), american, decimal, fraction
+           file_format (str, optional): json (default), csv
+        """
+        return self._make_request(endpoint='preds/pre-tournament', **kwargs)
 
     def get_live_stats(self, **kwargs):
         """Returns live strokes-gained and traditional stats for
@@ -80,7 +92,7 @@ class RequestHandler:
         file_format (optional) 
             options: json (default), csv
         """
-        return self._make_request(action='preds/live-tournament-stats', **kwargs)
+        return self._make_request(endpoint='preds/live-tournament-stats', **kwargs)
 
 
 class CommonHandler:
@@ -99,7 +111,7 @@ class CommonHandler:
     
     def get_players(self, dg_id: int = 0, dg_ids: list[int] = [], 
                        name: str = '', names: list[str] = [], **kwargs) -> list[Player]:
-        players = [Player(**player) for player in self._request_handler.get_player_list(**kwargs)]
+        players = [Player(**player) for player in self._request_handler.player_list(**kwargs)]
         
         if all(not _ for _ in (dg_id, dg_ids, name, names)):
             return players 
@@ -119,7 +131,7 @@ class CommonHandler:
     def get_player_field_updates(self, dg_id: int = 0, dg_ids: list[int] = [], 
                                  name: str = '', names: list[str] = [], tour: str = 'pga') -> PlayerFieldUpdates:
 
-        player_field_updates: PlayerFieldUpdates = self._request_handler.get_field_updates(tour=tour)
+        player_field_updates: PlayerFieldUpdates = self._request_handler.field_updates(tour=tour)
         player_field_updates['field'] = [PlayerFieldUpdate(**field_update) for field_update in player_field_updates.get('field')]
         
         if all(not _ for _ in (dg_id, dg_ids, name, names)):
@@ -139,10 +151,10 @@ class CommonHandler:
         return player_field_updates   
 
     def get_current_tournament(self, **kwargs) -> dict:
-        return {k: v for k, v in self._request_handler.get_field_updates(**kwargs).items() if k == 'event_name'}
+        return {k: v for k, v in self._request_handler.field_updates(**kwargs).items() if k == 'event_name'}
 
     def get_current_round(self, **kwargs) -> dict:
-        return {k: v for k, v in self._request_handler.get_field_updates(**kwargs).items() if k == 'current_round'}
+        return {k: v for k, v in self._request_handler.field_updates(**kwargs).items() if k == 'current_round'}
     
     def get_player_live_stats(): pass 
     
@@ -151,6 +163,14 @@ class CommonHandler:
     def get_player_live_predictions(): pass 
     
     def get_player_combined_stats_predictions(): pass 
+    
+    def get_dg_rankings_amateurs(): pass
+    
+    def get_leaderboard(size: int = 25, tour: str = 'pga'): pass
+    
+    
+    
+    
     
     
 

@@ -1,4 +1,4 @@
-from pydantic import BaseModel, confloat, conint, 
+from pydantic import BaseModel, confloat, conint
 from datetime import date 
 from typing import List
 
