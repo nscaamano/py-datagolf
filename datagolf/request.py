@@ -74,26 +74,83 @@ class RequestHandler:
            file_format (str, optional): json (default), csv
         """
         return self._make_request(endpoint='preds/pre-tournament', **kwargs)
+    
+    def pre_tournament_predictions_archive(self, **kwargs):
+        """Historical archive of PGA Tour pre-tournament predictions.
+        
+        Args:
+            event_id (str, optional): event IDs can be found through this endpoint 
+                                      (if no event ID is provided, the most recent event is returned)
+            year (str, optional): 2020, 2021, 2022, 2023 (default)
+            odds_format (str, optional): percent (default), american, decimal, fraction
+            file_format (str, optional): json (default), csv
+        """
+        return self._make_request(endpoint='preds/pre-tournament-archive', **kwargs)
+    
+    def player_skill_decompositions(self, **kwargs):
+        """Returns a detailed breakdown of every player's strokes-gained prediction 
+        for upcoming PGA and European Tour tournaments.
 
-    def get_live_stats(self, **kwargs):
+        Args:
+           tour (optional): pga (default), euro, opp (opposite field PGA TOUR event), alt
+           file_format (str, optional): json (default), csv
+        """
+        return self._make_request(endpoint='preds/player-decompositions', **kwargs)
+    
+    def player_skill_ratings(self, **kwargs):
+        """Returns our estimate and rank for each skill for all players with sufficient Shotlink measured \
+        rounds (at least 30 rounds in the last year or 50 in the last 2 years).
+
+        Args:
+            display (optional): value (default), rank
+            file_format (str, optional): json (default), csv
+        """
+        return self._make_request(endpoint='preds/skill-ratings', **kwargs)
+    
+    def detailed_approach_skill(self, **kwargs):
+        """Returns detailed player-level approach performance stats 
+        (strokes-gained per shot, proximity, GIR, good shot rate, poor shot avoidance rate) across various yardage/lie buckets.
+        
+        Args:
+            period (optional): l24 (last 24 months) (default), l12 (last 12 months), ytd (year to date)
+            file_format (str, optional): json (default), csv
+        """
+        return self._make_request(endpoint='preds/approach-skill', **kwargs)
+    
+    def live_model_predictions(self, **kwargs):
+        """Returns live (updating at 5 minute intervals) finish probabilities for ongoing PGA and European Tour tournaments.
+        
+        Args: 
+            tour: pga (default), euro, opp (opposite field PGA TOUR event), kft, alt
+            dead_heat: no (default), yes
+            odds_format: percent (default), american, decimal, fraction
+            file_format: json (default), csv
+        """
+        return self._make_request(endpoint='preds/in-play', **kwargs)
+    
+        
+    def live_tournament_stats(self, **kwargs):
         """Returns live strokes-gained and traditional stats for
         every player during PGA Tour tournaments.
         
-        stats (optional): Comma-separated list of statistics to be returned.
-            options: sg_putt, sg_arg, sg_app, sg_ott, sg_t2g, sg_bs, sg_total, 
-            distance, accuracy, gir, prox_fw, prox_rgh, scrambling
-
-        round (optional) e
-            options: event_avg, 1, 2, 3, 4
-
-        display (optional) specifies how stats are displayed
-            options: value (default), rank
-        
-        file_format (optional) 
-            options: json (default), csv
+        Args:
+            stats (optional): sg_putt, sg_arg, sg_app, sg_ott, sg_t2g, sg_bs, sg_total, 
+                              distance, accuracy, gir, prox_fw, prox_rgh, scrambling
+            round (optional): event_avg, 1, 2, 3, 4
+            display (optional): value (default), rank
+            file_format (optional): json (default), csv
         """
         return self._make_request(endpoint='preds/live-tournament-stats', **kwargs)
-
+    
+    def live_hole_scoring_distributions(self, **kwargs):
+        """Returns live hole scoring averages and distrubutions (birdies, pars, bogeys, etc.) broken down by tee time wave.
+        
+        Args:
+            tour (optional): pga (default), euro, opp (opposite field PGA TOUR event), kft, alt
+            file_format (optional): json (default), csv
+        """
+        return self._make_request(endpoint='preds/live-hole-stats', **kwargs)
+        
 
 class CommonHandler:
 
