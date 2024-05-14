@@ -7,6 +7,10 @@ def player_list_test():
     
     player_list = api.request.player_list()
     print(player_list)
+    
+def player_list_test_csv():
+    player_list = api.request.player_list(file_format='csv')
+    print(player_list)
 
 def misc_test():
     external_data: Player = {'amateur': 0, 'country': 'Sweden', 'country_code': 'SWE', 'dg_id': 23950, 'player_name': 'Aberg, Ludvig'}
@@ -63,7 +67,7 @@ def test_pre_tournament_predictions():
     
     test = api.request.pre_tournament_predictions()
     print(test)
-    
+
     
 
 
@@ -74,12 +78,17 @@ def run_tests():
     #test_event_model()
     #field_updates_test()
     #test_dg_rankings()
-    test_pre_tournament_predictions()
+    #test_pre_tournament_predictions()
+    #player_list_test_csv()
+    pass
     
 
 
 if __name__ == '__main__':
     #print(api.common.current_tournament())
     #print(api.common.current_round())
-    run_tests()
+    #run_tests()
+    
+    field_updates = api.request.field_updates()
+    print(field_updates)
     
