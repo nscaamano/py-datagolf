@@ -155,3 +155,11 @@ cython_debug/
 # Misc
 secrets.json
 todo.txt
+
+/bin
+pyvenv.cfg
+
+*.csv
+.DS_STORE
+launch.json
+setup.sh
