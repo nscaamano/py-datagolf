@@ -53,7 +53,7 @@ class PlayerFieldUpdateModel(BaseModel):
 class PlayerFieldUpdatesModel(BaseModel):
     current_round: int 
     event_name: str 
-    field: List[PlayerFieldUpdate]
+    field: List[PlayerFieldUpdateModel]
     
     
 class PlayerRankModel(BaseModel):
@@ -65,3 +65,17 @@ class PlayerRankModel(BaseModel):
     owgr_rank: int 
     player_name: str 
     primary_tour: str 
+    
+class PreTournamentPredModel(BaseModel):
+    am: conint(ge=0, le=1)
+    country: str 
+    dg_id: int # fk 
+    make_cut: float 
+    player_name: str 
+    sample_size: int 
+    top_10: float 
+    top_20: float
+    top_5: float
+    win: float 
+    
+    

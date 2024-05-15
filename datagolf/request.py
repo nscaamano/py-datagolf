@@ -1,9 +1,7 @@
 import json
 import requests
-from collections import OrderedDict
 
 from .utils import open_json_file
-from .models import Player, PlayerFieldUpdate, PlayerFieldUpdates
 
 
 class RequestHandler:
@@ -29,6 +27,11 @@ class RequestHandler:
         if 'file_format=csv' in resp.request.url:
             return [item.split(',') for item in resp.text.split('\n')]
         return json.loads(resp.text)
+        '''
+            some logic here to go ahead and create objects off pydantic base model
+            if some global is true like USE_PYDANTIC or USE_RAW_DATA 
+            then pass the Model type into the make request fuction 
+        '''
 
     def player_list(self, **kwargs):
         """Provides players who've played on a "major tour" since 2018

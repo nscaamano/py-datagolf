@@ -16,9 +16,11 @@ class CommonHandler:
                 if name_part not in name.lower(): is_found = False             
         return is_found
     
-    def get_players(self, dg_id: int = 0, dg_ids: list[int] = [], 
+    def get_players(self, player_list_data, dg_id: int = 0, dg_ids: list[int] = [], 
                        name: str = '', names: list[str] = [], **kwargs) -> list[PlayerModel]:
-        players = [PlayerModel(**player) for player in self._request_handler.player_list(**kwargs)]
+        player_data = player_list_data if player_list_data else self._request_handler.player_list(**kwargs)
+        players = [PlayerModel(**player) for player in player_data]
+        
         
         if all(not _ for _ in (dg_id, dg_ids, name, names)):
             return players 
