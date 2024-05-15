@@ -1,4 +1,5 @@
-from .request import CommonHandler, RequestHandler
+from .request import RequestHandler
+from .common import CommonHandler
 
 
 class DgAPI:

@@ -1,4 +1,4 @@
-from .models import Player
+from .models import PlayerModel
 from .api import DgAPI
 
 '''

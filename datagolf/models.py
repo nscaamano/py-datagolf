@@ -2,7 +2,7 @@ from pydantic import BaseModel, confloat, conint
 from datetime import date 
 from typing import List
 
-class Player(BaseModel):
+class PlayerModel(BaseModel):
     dg_id: int 
     player_name: str
     country: str
@@ -13,7 +13,7 @@ class Player(BaseModel):
         return hash((self.dg_id, self.player_name))
     
     
-class Event(BaseModel):
+class EventModel(BaseModel):
     event_id: int 
     event_name: str 
     course_key: str 
@@ -24,7 +24,7 @@ class Event(BaseModel):
     start_date: date 
     
 
-class PlayerFieldUpdate(BaseModel):
+class PlayerFieldUpdateModel(BaseModel):
     am: conint(ge=0, le=1) 
     country: str 
     course: str 
@@ -50,13 +50,13 @@ class PlayerFieldUpdate(BaseModel):
         return hash((self.dg_id))    
     
 
-class PlayerFieldUpdates(BaseModel):
+class PlayerFieldUpdatesModel(BaseModel):
     current_round: int 
     event_name: str 
     field: List[PlayerFieldUpdate]
     
     
-class PlayerRank(BaseModel):
+class PlayerRankModel(BaseModel):
     am: conint(ge=0, le=1)
     country: str 
     datagolf_rank: int 
