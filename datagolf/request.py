@@ -10,9 +10,12 @@ class RequestHandler:
 
     _url_base = 'https://feeds.datagolf.com/'
 
-    def __init__(self, **kwargs):
+    def __init__(self, api_key: str = '', **kwargs):
         try:
-            self._api_key = open_json_file('secrets.json').get('api_key')
+            if api_key:
+                self._api_key = api_key
+            else: 
+                self._api_key = open_json_file('secrets.json').get('api_key')
         except FileNotFoundError as e:
             print('Correct secrets.json file')
 
