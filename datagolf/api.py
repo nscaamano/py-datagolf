@@ -10,11 +10,9 @@ CACHE_REFRESH_LABEL = 'last_refresh' # use cache object later
 
 class DgAPI:
     
-    def __init__(self, api_key = None):
-        
-        if api_key: pass 
+    def __init__(self, api_key: str = None):
             
-        self.request = RequestHandler() 
+        self.request = RequestHandler(api_key=api_key) 
         self._cache = {}
             # mainly for tests w/ many repetitive api calls
             # TODO need to keep track of args to see if args change across calls in which case refresh needed
@@ -33,7 +31,7 @@ class DgAPI:
         
         if self._cache.get(CACHE_REFRESH_LABEL) and (
             (datetime.now() - self._cache.get(CACHE_REFRESH_LABEL)) > timedelta(minutes=self.cache_interval)
-        ): self._cache[CACHE_REFRESH_LABEL] = self.request.player_list(**kwargs) 
+        ): self._cache[endpoint_name] = endpoint_func(**kwargs) 
     
     @staticmethod
     def _filter_dg_objects(
@@ -113,10 +111,10 @@ class DgAPI:
         return player_field_updates   
 
     def get_current_tournament(self, **kwargs) -> dict:
-        return {k: v for k, v in self._request_handler.field_updates(**kwargs).items() if k == 'event_name'}
+        return {k: v for k, v in self.request.field_updates(**kwargs).items() if k == 'event_name'}
 
     def get_current_round(self, **kwargs) -> dict:
-        return {k: v for k, v in self._request_handler.field_updates(**kwargs).items() if k == 'current_round'}
+        return {k: v for k, v in self.request.field_updates(**kwargs).items() if k == 'current_round'}
     
     def get_player_live_stats(): pass 
     
