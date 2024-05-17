@@ -14,38 +14,30 @@ class DgAPI:
             
         self.request = RequestHandler() 
         #self._player_list_cache = None
-    
-    def _get_factory(self, 
-                dg_id: Optional[int] = None, 
-                dg_ids: Optional[List[int]] = None, 
-                name: Optional[str] = None, 
-                names: Optional[List[str]] = None, 
-                player_list_data: Optional[List[PlayerModel]] = None, 
-                **kwargs) -> List['PlayerModel']:
-        pass
         
-    def get_players(
-        self,      
+    def refesh():
+        pass # may use later on if caching 
+    
+    @staticmethod
+    def _filter_factory(
+        list_data, # required / must have names an ids 
+        #model_type, # type to apply on list items 
         dg_id: Optional[Union[int, List[int]]] = None, 
         name: Optional[Union[str, List[str]]] = None,
-        player_list_data: Optional[List[PlayerModel]] = None, # cache this 
-        **kwargs
-    ) -> List[dict]: # -> List[PlayerModel] ? using factory method later can't specify type 
-        player_data = player_list_data if player_list_data else self.request.player_list(**kwargs)
-        players = [PlayerModel(**player) for player in player_data]
+    ) -> List[dict]:
         
         if all(not param for param in (dg_id, name)):
-            return players 
+            return list_data 
     
-        def match_dg_id(player):
+        def match_dg_id(dg_object):
             if isinstance(dg_id, list):
-                return player.dg_id in [int(id_) for id_ in dg_id]
+                return dg_object.dg_id in [int(id_) for id_ in dg_id]
             elif dg_id is not None:
-                return player.dg_id == int(dg_id)
+                return dg_object.dg_id == int(dg_id)
             return True
         
-        def match_name(player):
-            player_name_lower = player.player_name.lower()
+        def match_name(dg_object):
+            player_name_lower = dg_object.player_name.lower()
             if isinstance(name, list):
                 return any(all(n.lower() in player_name_lower for n in split_name) for split_name in (n.split() for n in name))
             elif name is not None:
@@ -53,23 +45,33 @@ class DgAPI:
                 return all(n in player_name_lower for n in split_name)
             return True
         
-        matched_players = set()
+        matched_objects = set()
     
         if dg_id is not None:
-            for player in players:
-                if match_dg_id(player):
-                    matched_players.add(player.dg_id)
+            for dg_object in list_data:
+                if match_dg_id(dg_object):
+                    matched_objects.add(dg_object.dg_id)
         
         if name is not None:
-            for player in players:
-                if match_name(player):
-                    matched_players.add(player.dg_id)
+            for dg_object in list_data:
+                if match_name(dg_object):
+                    matched_objects.add(dg_object.dg_id)
         
-        # Collect unique players
-        filtered_players = [player for player in players if player.dg_id in matched_players]
+        filtered_objects = [player for player in list_data if player.dg_id in matched_objects]
         
-        return filtered_players
-   
+        return filtered_objects
+    
+    def get_players(
+        self,      
+        dg_id: Optional[Union[int, List[int]]] = None, 
+        name: Optional[Union[str, List[str]]] = None,
+        player_list_data: Optional[List[PlayerModel]] = None, # cache this 
+        **kwargs
+    ) -> List[dict]:
+        player_data = player_list_data if player_list_data else self.request.player_list(**kwargs)
+        players = [PlayerModel(**player) for player in player_data]
+        return DgAPI._filter_factory(list_data=players, name=name, dg_id=dg_id)
+    
     def get_player_field_updates(self, dg_id: int = 0, dg_ids: List[int] = [], 
                                  name: str = '', names: List[str] = [], tour: str = 'pga') -> PlayerFieldUpdatesModel:
 
