@@ -31,6 +31,7 @@ class RequestHandler:
             return [item.split(',') for item in resp.text.split('\n')]
         return json.loads(resp.text)
         '''
+            TODO if decide to not convert objects in api object and rather here and add filtering here as well : 
             some logic here to go ahead and create objects off pydantic base model
             if some global is true like USE_PYDANTIC or USE_RAW_DATA 
             then pass the Model type into the make request fuction 
