@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List
+from typing import List, Optional
 
 from .request import RequestHandler
 from .models import PlayerFieldUpdatesModel, PlayerFieldUpdateModel, PlayerModel
@@ -13,9 +13,24 @@ class DgAPI:
         if api_key: pass 
             
         self.request = RequestHandler() 
+    '''
+    def get_factory(self, 
+                    player_list_data: Optional[List[PlayerModel]] = None, 
+                    dg_id: Optional[int] = None, 
+                    dg_ids: Optional[List[int]] = None, 
+                    name: Optional[str] = None, 
+                    names: Optional[List[str]] = None, 
+                    **kwargs) -> List['PlayerModel']:
+    '''
     
-    def get_players(self, player_list_data: List[PlayerModel] = None, dg_id: int = 0, dg_ids: List[int] = [], 
-                       name: str = '', names: List[str] = [], **kwargs) -> List[PlayerModel]:
+    def get_players(self, 
+                    player_list_data: Optional[List[PlayerModel]] = None, 
+                    dg_id: Optional[int] = None, 
+                    dg_ids: Optional[List[int]] = None, 
+                    name: Optional[str] = None, 
+                    names: Optional[List[str]] = None, 
+                    **kwargs) -> List['PlayerModel']:
+        
         player_data = player_list_data if player_list_data else self.request.player_list(**kwargs)
         players = [PlayerModel(**player) for player in player_data]
         
@@ -23,9 +38,10 @@ class DgAPI:
         if all(not _ for _ in (dg_id, dg_ids, name, names)):
             return players 
         
-        target_data: List[PlayerModel] = []
-        dg_ids = [int(id_) for id_ in dg_ids]
+        target_data = []
+        dg_ids = [int(id_) for id_ in dg_ids] if dg_ids else []
         dg_ids = [*dg_ids, int(dg_id)] if dg_id else dg_ids
+        names = [] if not names else names
         names = [*names, name] if name  else names
         for player in players:
             for id_ in dg_ids:
