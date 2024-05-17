@@ -16,7 +16,7 @@ class CommonHandler:
                 if name_part not in name.lower(): is_found = False             
         return is_found
     
-    def get_players(self, player_list_data, dg_id: int = 0, dg_ids: list[int] = [], 
+    def get_players(self, player_list_data: list[PlayerModel] = None, dg_id: int = 0, dg_ids: list[int] = [], 
                        name: str = '', names: list[str] = [], **kwargs) -> list[PlayerModel]:
         player_data = player_list_data if player_list_data else self._request_handler.player_list(**kwargs)
         players = [PlayerModel(**player) for player in player_data]
@@ -26,7 +26,8 @@ class CommonHandler:
             return players 
         
         target_data: list[PlayerModel] = []
-        dg_ids = [*dg_ids, dg_id] if dg_id else dg_ids
+        dg_ids = [int(id_) for id_ in dg_ids]
+        dg_ids = [*dg_ids, int(dg_id)] if dg_id else dg_ids
         names = [*names, name] if name  else names
         for player in players:
             for id_ in dg_ids:
@@ -34,8 +35,11 @@ class CommonHandler:
                     target_data.append(player)
             for name_ in names:
                 if CommonHandler._name_comparison(name=player.player_name, target_name=name_): target_data.append(player)
-                        
-        return list(OrderedDict.fromkeys(target_data)) if target_data else players
+        
+        if len(list(set(target_data))) == 1:
+            return target_data[0]
+        #return list(OrderedDict.fromkeys(target_data)) if target_data else players
+        return list(OrderedDict.fromkeys(target_data)) if target_data else []
   
     def get_player_field_updates(self, dg_id: int = 0, dg_ids: list[int] = [], 
                                  name: str = '', names: list[str] = [], tour: str = 'pga') -> PlayerFieldUpdatesModel:

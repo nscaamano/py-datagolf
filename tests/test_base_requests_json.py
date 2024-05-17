@@ -85,8 +85,7 @@ class TestDgAPIRequestBase:
         assert isinstance(player_list, list)
 
     def test_player_list(self, player_list, scottie):
-        scottie_test = next(
-            (player for player in player_list if player['player_name'] == 'Scheffler, Scottie'))
+        scottie_test = next((player for player in player_list if player['player_name'] == 'Scheffler, Scottie'))
         assert scottie == scottie_test
 
     def test_field_updates(self, field_updates):

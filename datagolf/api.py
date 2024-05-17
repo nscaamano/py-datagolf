@@ -10,3 +10,9 @@ class DgAPI:
             
         self.request = RequestHandler() 
         self.common = CommonHandler(self.request)
+        
+    def __repr__(self) -> str:
+        pass
+    
+    def __str__(self) -> str:
+        pass
