@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from typing import List, Optional
+from typing import List, Union, Optional
 
 from .request import RequestHandler
 from .models import PlayerFieldUpdatesModel, PlayerFieldUpdateModel, PlayerModel
@@ -13,48 +13,63 @@ class DgAPI:
         if api_key: pass 
             
         self.request = RequestHandler() 
-    '''
-    def get_factory(self, 
-                    player_list_data: Optional[List[PlayerModel]] = None, 
-                    dg_id: Optional[int] = None, 
-                    dg_ids: Optional[List[int]] = None, 
-                    name: Optional[str] = None, 
-                    names: Optional[List[str]] = None, 
-                    **kwargs) -> List['PlayerModel']:
-    '''
+        #self._player_list_cache = None
     
-    def get_players(self, 
-                    player_list_data: Optional[List[PlayerModel]] = None, 
-                    dg_id: Optional[int] = None, 
-                    dg_ids: Optional[List[int]] = None, 
-                    name: Optional[str] = None, 
-                    names: Optional[List[str]] = None, 
-                    **kwargs) -> List['PlayerModel']:
+    def _get_factory(self, 
+                dg_id: Optional[int] = None, 
+                dg_ids: Optional[List[int]] = None, 
+                name: Optional[str] = None, 
+                names: Optional[List[str]] = None, 
+                player_list_data: Optional[List[PlayerModel]] = None, 
+                **kwargs) -> List['PlayerModel']:
+        pass
         
+    def get_players(
+        self,      
+        dg_id: Optional[Union[int, List[int]]] = None, 
+        name: Optional[Union[str, List[str]]] = None,
+        player_list_data: Optional[List[PlayerModel]] = None, # cache this 
+        **kwargs
+    ) -> List[dict]: # -> List[PlayerModel] ? using factory method later can't specify type 
         player_data = player_list_data if player_list_data else self.request.player_list(**kwargs)
         players = [PlayerModel(**player) for player in player_data]
         
-        
-        if all(not _ for _ in (dg_id, dg_ids, name, names)):
+        if all(not param for param in (dg_id, name)):
             return players 
+    
+        def match_dg_id(player):
+            if isinstance(dg_id, list):
+                return player.dg_id in [int(id_) for id_ in dg_id]
+            elif dg_id is not None:
+                return player.dg_id == int(dg_id)
+            return True
         
-        target_data = []
-        dg_ids = [int(id_) for id_ in dg_ids] if dg_ids else []
-        dg_ids = [*dg_ids, int(dg_id)] if dg_id else dg_ids
-        names = [] if not names else names
-        names = [*names, name] if name  else names
-        for player in players:
-            for id_ in dg_ids:
-                if id_ == player.dg_id:
-                    target_data.append(player)
-            for name_ in names:
-                if name_comparison(name=player.player_name, target_name=name_): target_data.append(player)
+        def match_name(player):
+            player_name_lower = player.player_name.lower()
+            if isinstance(name, list):
+                return any(all(n.lower() in player_name_lower for n in split_name) for split_name in (n.split() for n in name))
+            elif name is not None:
+                split_name = name.lower().split()
+                return all(n in player_name_lower for n in split_name)
+            return True
         
-        if len(list(set(target_data))) == 1:
-            return target_data[0]
-        #return list(OrderedDict.fromkeys(target_data)) if target_data else players
-        return list(OrderedDict.fromkeys(target_data)) if target_data else []
-  
+        matched_players = set()
+    
+        if dg_id is not None:
+            for player in players:
+                if match_dg_id(player):
+                    matched_players.add(player.dg_id)
+        
+        if name is not None:
+            for player in players:
+                if match_name(player):
+                    matched_players.add(player.dg_id)
+        
+        # Collect unique players
+        filtered_players = [player for player in players if player.dg_id in matched_players]
+        
+        return filtered_players
+   
     def get_player_field_updates(self, dg_id: int = 0, dg_ids: List[int] = [], 
                                  name: str = '', names: List[str] = [], tour: str = 'pga') -> PlayerFieldUpdatesModel:
 
