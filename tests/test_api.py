@@ -1,7 +1,6 @@
 import pytest
 
 from datagolf.api import DgAPI
-
 from datagolf.models import PlayerModel
 
 

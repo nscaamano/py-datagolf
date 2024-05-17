@@ -1,21 +1,16 @@
+from collections import OrderedDict
+
 from .request import RequestHandler
 from .models import PlayerFieldUpdatesModel, PlayerFieldUpdateModel, PlayerModel
-from collections import OrderedDict
+from .utils import name_comparison
+
+
 
 class CommonHandler:
 
     def __init__(self, request_handler: RequestHandler):
         self._request_handler = request_handler
 
-    @staticmethod
-    def _name_comparison(name: str, target_name: str = '') -> bool:        
-        if target_name == '': return False
-        is_found = True 
-        if target_name:
-            for name_part in set(name_part.lower().strip() for name_part in target_name.split()): 
-                if name_part not in name.lower(): is_found = False             
-        return is_found
-    
     def get_players(self, player_list_data: list[PlayerModel] = None, dg_id: int = 0, dg_ids: list[int] = [], 
                        name: str = '', names: list[str] = [], **kwargs) -> list[PlayerModel]:
         player_data = player_list_data if player_list_data else self._request_handler.player_list(**kwargs)
@@ -34,7 +29,7 @@ class CommonHandler:
                 if id_ == player.dg_id:
                     target_data.append(player)
             for name_ in names:
-                if CommonHandler._name_comparison(name=player.player_name, target_name=name_): target_data.append(player)
+                if name_comparison(name=player.player_name, target_name=name_): target_data.append(player)
         
         if len(list(set(target_data))) == 1:
             return target_data[0]
@@ -58,7 +53,7 @@ class CommonHandler:
                 if dg_id == player_field_update.dg_id:
                     target_data.append(player_field_update)
             for name_ in names:
-                if CommonHandler._name_comparison(name=player_field_update.player_name, target_name=name_): target_data.append(player_field_update)
+                if name_comparison(name=player_field_update.player_name, target_name=name_): target_data.append(player_field_update)
         
         player_field_updates['field'] = list(OrderedDict.fromkeys(target_data))         
         return player_field_updates   

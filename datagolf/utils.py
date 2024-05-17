@@ -21,3 +21,11 @@ def write_dict_data_to_csv(filename: str, data: List[dict]) -> None:
         writer.writeheader()
         for row in data:
             writer.writerow(row)
+
+def name_comparison(name: str, target_name: str = '') -> bool:        
+        if target_name == '': return False
+        is_found = True 
+        if target_name:
+            for name_part in set(name_part.lower().strip() for name_part in target_name.split()): 
+                if name_part not in name.lower(): is_found = False             
+        return is_found
