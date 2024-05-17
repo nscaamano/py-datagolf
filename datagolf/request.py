@@ -1,7 +1,9 @@
 import json
+from typing import Optional
 import requests
 
 from .utils import open_json_file
+
 
 
 class RequestHandler:
@@ -10,7 +12,7 @@ class RequestHandler:
 
     _url_base = 'https://feeds.datagolf.com/'
 
-    def __init__(self, api_key: str = '', **kwargs):
+    def __init__(self, api_key: Optional[str] = None, **kwargs):
         try:
             if api_key:
                 self._api_key = api_key

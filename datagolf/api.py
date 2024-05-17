@@ -1,25 +1,42 @@
 from collections import OrderedDict
 from typing import List, Union, Optional
+from datetime import datetime, timedelta
 
 from .request import RequestHandler
 from .models import PlayerFieldUpdatesModel, PlayerFieldUpdateModel, PlayerModel
-from .utils import name_comparison
+
+CACHE_REFRESH_LABEL = 'last_refresh' # use cache object later 
 
 
 class DgAPI:
     
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key = None):
         
         if api_key: pass 
             
         self.request = RequestHandler() 
-        #self._player_list_cache = None
+        self._cache = {}
+            # mainly for tests w/ many repetitive api calls
+            # TODO need to keep track of args to see if args change across calls in which case refresh needed
+            # cache object (class) ? 
+        self.cache_interval = 2  # property and setter ? should be internal ?  
+             
+    def refresh(self, endpoints):
+        #  TODO refesh endpoints in cache
+        pass 
+    
+    def _check_cache(self, endpoint_func, **kwargs):
+        endpoint_name = endpoint_func.__name__
+        if not self._cache.get(endpoint_name):
+            self._cache[endpoint_name] = endpoint_func(**kwargs) 
+            self._cache[CACHE_REFRESH_LABEL] = datetime.now()
         
-    def refesh():
-        pass # may use later on if caching 
+        if self._cache.get(CACHE_REFRESH_LABEL) and (
+            (datetime.now() - self._cache.get(CACHE_REFRESH_LABEL)) > timedelta(minutes=self.cache_interval)
+        ): self._cache[CACHE_REFRESH_LABEL] = self.request.player_list(**kwargs) 
     
     @staticmethod
-    def _filter_factory(
+    def _filter_dg_objects(
         list_data, # required / must have names an ids 
         #model_type, # type to apply on list items 
         dg_id: Optional[Union[int, List[int]]] = None, 
@@ -47,12 +64,12 @@ class DgAPI:
         
         matched_objects = set()
     
-        if dg_id is not None:
+        if dg_id:
             for dg_object in list_data:
                 if match_dg_id(dg_object):
                     matched_objects.add(dg_object.dg_id)
         
-        if name is not None:
+        if name:
             for dg_object in list_data:
                 if match_name(dg_object):
                     matched_objects.add(dg_object.dg_id)
@@ -65,12 +82,13 @@ class DgAPI:
         self,      
         dg_id: Optional[Union[int, List[int]]] = None, 
         name: Optional[Union[str, List[str]]] = None,
-        player_list_data: Optional[List[PlayerModel]] = None, # cache this 
         **kwargs
     ) -> List[dict]:
-        player_data = player_list_data if player_list_data else self.request.player_list(**kwargs)
-        players = [PlayerModel(**player) for player in player_data]
-        return DgAPI._filter_factory(list_data=players, name=name, dg_id=dg_id)
+        
+        self._check_cache(self.request.player_list, **kwargs)
+        
+        players = [PlayerModel(**player) for player in self._cache['player_list']]
+        return DgAPI._filter_dg_objects(list_data=players, name=name, dg_id=dg_id)
     
     def get_player_field_updates(self, dg_id: int = 0, dg_ids: List[int] = [], 
                                  name: str = '', names: List[str] = [], tour: str = 'pga') -> PlayerFieldUpdatesModel:
