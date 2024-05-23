@@ -11,6 +11,8 @@ from .models import (
     PlayerModel,
     PlayerFieldUpdateModel,
     PlayerFieldUpdatesModel,
+    TourSchedulesModel,
+    EventModel,
 )
 
 
@@ -127,6 +129,26 @@ class DgAPI:
         endpoint = self._request.field_updates
         self._check_cache(endpoint, **kwargs)
         return {k: v for k, v in self._cache[endpoint.__name__].items() if k == 'current_round'}
+    
+    def get_tour_schedules(
+        self,
+        event_name: Optional[Union[str, List[str]]] = None,
+        event_id: Optional[Union[int, List[int]]] = None, 
+        # location,
+        # course
+        # TODO support to filter on any field in model for this endpoint's list items. 
+        **kwargs
+    ) -> TourSchedulesModel: 
+        endpoint = self._request.tour_schedules
+        self._check_cache(endpoint, **kwargs)
+        
+        tour_schedules = self._cache[endpoint.__name__]
+        tour_schedules['schedule'] = DgAPI._filter_dg_objects(
+            list_data=[EventModel(**event) for event in tour_schedules['schedule']], 
+            name=event_name, 
+            dg_id=event_id, # TODO change to misc_id for now; later support any field filtering 
+        )
+        return TourSchedulesModel(**tour_schedules)
     
     def get_player_live_stats(): pass 
     

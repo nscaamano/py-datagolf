@@ -41,3 +41,4 @@ $ pytest
 ## Todo 
 - ability to filter all available fields for the model in question. Right now only dg_id and name are available. 
 - support for list query string values i.e. stats='sg_putt,sg_app' with handling for incorrect input where that be conversions and/or exceptions.
+- tests which utilize models to validate expeceted shape data back from the api 

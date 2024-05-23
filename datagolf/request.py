@@ -105,7 +105,7 @@ class RequestHandler:
         return self._make_request(endpoint='preds/player-decompositions', **kwargs)
     
     def player_skill_ratings(self, **kwargs):
-        """Returns our estimate and rank for each skill for all players with sufficient Shotlink measured \
+        """Returns our estimate and rank for each skill for all players with sufficient Shotlink measured
         rounds (at least 30 rounds in the last year or 50 in the last 2 years).
 
         Args:

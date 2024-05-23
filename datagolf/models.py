@@ -1,6 +1,6 @@
 from pydantic import BaseModel, confloat, conint
 from datetime import date, datetime
-from typing import List, Optional
+from typing import List, Optional, Union
 
 
 class PlayerModel(BaseModel):
@@ -15,14 +15,21 @@ class PlayerModel(BaseModel):
     
     
 class EventModel(BaseModel):
-    event_id: int 
+    event_id: Union[str, int]
     event_name: str 
     course_key: str 
-    course: str 
-    latitude: confloat(ge=-90, le=90)
     location: str 
-    longitude: confloat(ge=-180, le=180)
+    course: str 
+    latitude: Union[confloat(ge=-90, le=90), str]
+    longitude: Union[confloat(ge=-180, le=180), str]
     start_date: date 
+    tour: str
+    
+
+class TourSchedulesModel(BaseModel):
+    current_season: int
+    schedule: List[EventModel]
+    tour: str 
     
 
 class PlayerFieldUpdateModel(BaseModel):
