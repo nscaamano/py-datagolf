@@ -9,15 +9,15 @@ PRED_MODEL = 'baseline_history_fit'
 
 if __name__ == '__main__':
     api = DgAPI()
-    preds = api.request.pre_tournament_predictions()
-    players = api.request.player_list()
+    
+    preds = api._request.pre_tournament_predictions()  # todo replace with api once supported
     #tier_1_ids = [player.dg_id for player in api.common.get_players(names=TIER_1)]
     output = {}
     
     for tier, values in TIERS.items():
-        dg_ids = [player.dg_id for player in api.common.get_players(player_list_data=players, names=values)]
+        dg_ids = [player.dg_id for player in api.get_players(name=values)]
         output_preds = []
-        for pred in preds[PRED_MODEL]:
+        for pred in preds[PRED_MODEL]:  # once supported by api use . notation
             if pred['dg_id'] in dg_ids:
                 output_preds.append(pred)
         output[tier] = output_preds

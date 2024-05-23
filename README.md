@@ -2,7 +2,7 @@
 
 A Python wrapper around the Datagolf API.
 
-This library provides a Python interface for the [Datagolf API](https://datagolf.com/). 
+This library provides a Python interface for the [Datagolf's](https://datagolf.com/) API.
 
 ##  Installing 
 Not publishsed yet.
@@ -20,7 +20,7 @@ This library uses models to verify and represent the various structures returned
 More to come...
 
 ## Usage 
-The main usage is with the datagolf.api class. Authentication is simple using an api key as a parameter to the query string. This key is obtained from https://datagolf.com/api-access and is passed to the api object at initialization. 
+Primary usage will involve the datagolf.api DgAPI class. Authentication is simple by providing an api key as a parameter to the query string for each request; this key can be provided in object initlization for the DgAPI class as well as the base request class; the key is obtained from https://datagolf.com/api-access. 
 
 ```
 from datagolf.api import DgAPI
@@ -28,9 +28,7 @@ api = DgAPI(api_key='my_api_key')
 print(api.get_players())
 ```
 
- datagolf.request may also be used for raw responses. An api_key can be passed here as well. 
-
- See /examples directory for example usage. 
+See /examples directory for example usage. 
 
 ## Documentation 
 There are no public docs yet. 
