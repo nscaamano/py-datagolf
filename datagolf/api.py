@@ -1,18 +1,27 @@
-from collections import OrderedDict
-from typing import List, Union, Optional
+from typing import (
+    List, 
+    Dict,
+    Union, 
+    Optional,
+) 
 from datetime import datetime, timedelta
 
 from .request import RequestHandler
-from .models import PlayerFieldUpdatesModel, PlayerFieldUpdateModel, PlayerModel
+from .models import (
+    PlayerModel,
+    PlayerFieldUpdateModel,
+    PlayerFieldUpdatesModel,
+)
 
-CACHE_REFRESH_LABEL = 'last_refresh' # use cache object later 
 
 
 class DgAPI:
     
+    _cache_refesh_label = 'last_refresh'
+    
     def __init__(self, api_key: str = None):
             
-        self.request = RequestHandler(api_key=api_key) 
+        self._request = RequestHandler(api_key=api_key) 
         self._cache = {}
             # mainly for tests w/ many repetitive api calls
             # TODO need to keep track of args to see if args change across calls in which case refresh needed
@@ -27,10 +36,10 @@ class DgAPI:
         endpoint_name = endpoint_func.__name__
         if not self._cache.get(endpoint_name):
             self._cache[endpoint_name] = endpoint_func(**kwargs) 
-            self._cache[CACHE_REFRESH_LABEL] = datetime.now()
+            self._cache[DgAPI._cache_refesh_label] = datetime.now()
         
-        if self._cache.get(CACHE_REFRESH_LABEL) and (
-            (datetime.now() - self._cache.get(CACHE_REFRESH_LABEL)) > timedelta(minutes=self.cache_interval)
+        if self._cache.get(DgAPI._cache_refesh_label) and (
+            (datetime.now() - self._cache.get(DgAPI._cache_refesh_label)) > timedelta(minutes=self.cache_interval)
         ): self._cache[endpoint_name] = endpoint_func(**kwargs) 
     
     @staticmethod
@@ -81,62 +90,48 @@ class DgAPI:
         dg_id: Optional[Union[int, List[int]]] = None, 
         name: Optional[Union[str, List[str]]] = None,
         **kwargs
-    ) -> List[dict]:
+    ) -> List[PlayerModel]:
+        endpoint = self._request.player_list
+        self._check_cache(endpoint, **kwargs)
         
-        self._check_cache(self.request.player_list, **kwargs)
-        
-        players = [PlayerModel(**player) for player in self._cache['player_list']]
-        return DgAPI._filter_dg_objects(list_data=players, name=name, dg_id=dg_id)
+        return DgAPI._filter_dg_objects(
+            list_data=[PlayerModel(**player) for player in self._cache[endpoint.__name__]], 
+            name=name, 
+            dg_id=dg_id
+        )
     
-    def get_player_field_updates(self, dg_id: int = 0, dg_ids: List[int] = [], 
-                                 name: str = '', names: List[str] = [], tour: str = 'pga') -> PlayerFieldUpdatesModel:
-
-        player_field_updates: PlayerFieldUpdatesModel = self._request_handler.field_updates(tour=tour)
-        player_field_updates['field'] = [PlayerFieldUpdateModel(**field_update) for field_update in player_field_updates.get('field')]
+    def get_player_field_updates(
+        self,
+        dg_id: Optional[Union[int, List[int]]] = None, 
+        name: Optional[Union[str, List[str]]] = None,
+        **kwargs
+    ) -> PlayerFieldUpdatesModel:
+        endpoint = self._request.field_updates
+        self._check_cache(endpoint, **kwargs)
         
-        if all(not _ for _ in (dg_id, dg_ids, name, names)):
-            return player_field_updates
-        
-        target_data: List[PlayerFieldUpdateModel] = []
-        dg_ids = [*dg_ids, dg_id] if dg_id else dg_ids
-        names = [*names, name] if name  else names
-        for player_field_update in player_field_updates['field']:
-            for dg_id in dg_ids:
-                if dg_id == player_field_update.dg_id:
-                    target_data.append(player_field_update)
-            for name_ in names:
-                if name_comparison(name=player_field_update.player_name, target_name=name_): target_data.append(player_field_update)
-        
-        player_field_updates['field'] = list(OrderedDict.fromkeys(target_data))         
-        return player_field_updates   
+        update = self._cache[endpoint.__name__]
+        update['field'] = DgAPI._filter_dg_objects(
+            list_data=[PlayerFieldUpdateModel(**update) for update in update['field']], 
+            name=name, 
+            dg_id=dg_id
+        )
+        return PlayerFieldUpdatesModel(**update)
 
-    def get_current_tournament(self, **kwargs) -> dict:
-        return {k: v for k, v in self.request.field_updates(**kwargs).items() if k == 'event_name'}
+    def get_current_tournament(self, **kwargs) -> Dict[str, str]:
+        # TODO for this method and next. Specify tour in returned struct.
+        endpoint = self._request.field_updates
+        self._check_cache(endpoint, **kwargs)
+        return {k: v for k, v in self._cache[endpoint.__name__].items() if k == 'event_name'}
 
-    def get_current_round(self, **kwargs) -> dict:
-        return {k: v for k, v in self.request.field_updates(**kwargs).items() if k == 'current_round'}
+    def get_current_round(self, **kwargs) -> Dict[str, int]:
+        endpoint = self._request.field_updates
+        self._check_cache(endpoint, **kwargs)
+        return {k: v for k, v in self._cache[endpoint.__name__].items() if k == 'current_round'}
     
     def get_player_live_stats(): pass 
     
     def get_player_live_score(): pass 
     
-    def get_player_live_predictions(): pass 
-    
-    def get_player_combined_stats_predictions(): pass 
-    
     def get_dg_rankings_amateurs(): pass
     
     def get_leaderboard(size: int = 25, tour: str = 'pga'): pass
-    
-
-    '''
-    def get_player_live_stats(self, names: list, **kwargs) -> dict:
-        """stats should be a string comma separated list
-           i.e. stats='sg_putt,sg_app'
-        """
-        if 'stats' in kwargs.keys():
-            assert ' ' not in kwargs['stats'], "stats should not have spaces. i.e. stats='sg_putt,sg_app'"
-        return self._general_filtered_get(request_func=self._request_handler.get_live_stats,
-                                          exception_field='live_stats',
-                                          names=names, **kwargs)
-    '''
