@@ -20,7 +20,7 @@ class DgAPI:
     """TODO add docs
     """
     
-    _cache_refesh_label = 'last_refresh'
+    _cache_refesh_key = 'last_refresh'
     
     def __init__(self, api_key: Optional[str] = None):
             
@@ -47,7 +47,7 @@ class DgAPI:
     
     @staticmethod
     def _filter_dg_objects(
-        list_data, # required / must have names an ids 
+        list_data: list, 
         dg_id: Optional[Union[int, List[int]]] = None, 
         name: Optional[Union[str, List[str]]] = None,
     ) -> List[dict]:
