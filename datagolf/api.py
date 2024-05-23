@@ -14,22 +14,23 @@ from .models import (
 )
 
 
-
 class DgAPI:
+    """TODO add docs
+    """
     
     _cache_refesh_label = 'last_refresh'
     
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: Optional[str] = None):
             
-        self._request = RequestHandler(api_key=api_key) 
+        self._request = RequestHandler(api_key=api_key)  # should be public ? 
         self._cache = {}
             # mainly for tests w/ many repetitive api calls
-            # TODO need to keep track of args to see if args change across calls in which case refresh needed
+            # TODO need to keep track of kwargs to see if args change across calls in which case refresh needed
             # cache object (class) ? 
-        self.cache_interval = 2  # property and setter ? should be internal ?  
+        self.cache_interval = 2  # @property ? should be internal ?  
              
     def refresh(self, endpoints):
-        #  TODO refesh endpoints in cache
+        #  TODO refesh endpoints in cache ? 
         pass 
     
     def _check_cache(self, endpoint_func, **kwargs):
@@ -45,7 +46,6 @@ class DgAPI:
     @staticmethod
     def _filter_dg_objects(
         list_data, # required / must have names an ids 
-        #model_type, # type to apply on list items 
         dg_id: Optional[Union[int, List[int]]] = None, 
         name: Optional[Union[str, List[str]]] = None,
     ) -> List[dict]:
