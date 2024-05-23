@@ -42,22 +42,26 @@ class RequestHandler:
     def player_list(self, **kwargs):
         """Provides players who've played on a "major tour" since 2018
         or are playing on a major tour this week. IDs, country, amateur status included.
-        file_format is json (default), csv
+        Args:
+            file_format  csv
         """
         return self._make_request(endpoint='get-player-list', **kwargs)
 
     def field_updates(self, **kwargs):
         """Provides field updates on WDs, Monday Qualifiers, tee times.
         tour can be pga (default), euro, kft, opp, alt
-        file_format is json (default), csv
+        Args:
+            file_format (str, optional): json (default), csv
         """
         return self._make_request(endpoint='field-updates', **kwargs)
 
     def tour_schedules(self,  **kwargs):
         """Current season schedules for the primary tours (PGA, European, KFT).
-        Includes event names/ids, course names/ids, and location
-        (city/country and latitude, longitude coordinates) data for select tours.
-        tour (optional) can be pga (default), euro, kft
+        Includes event names/ids, course names/ids, and location(city/country and 
+        latitude, longitude coordinates) data for select tours.
+        Args:
+            tour (optional) can be pga (default), euro, kft
+            file_format (str, optional): json (default), csv
         """
         return self._make_request(endpoint='get-schedule', **kwargs)
     
@@ -65,7 +69,7 @@ class RequestHandler:
         """Returns the top 500 players in the current DG rankings, 
            along with each player's skill estimate and respective OWGR rank.
         Args:
-            file_format (str, optional): Defaults to 'json'.
+            file_format (str, optional): json (default), csv
         """
         return self._make_request(endpoint='preds/get-dg-rankings', **kwargs)
     
