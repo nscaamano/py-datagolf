@@ -1,11 +1,11 @@
 import pytest
 
-from datagolf.api import DgAPI
+from datagolf.request import RequestHandler
 
 
 @pytest.fixture
-def api():
-    return DgAPI()
+def request_handler():
+    return RequestHandler()
 
 
 @pytest.fixture
@@ -20,63 +20,63 @@ def scottie():
 
 
 @pytest.fixture
-def player_list(api):
-    return api.request.player_list()
+def player_list(request_handler):
+    return request_handler.player_list()
 
 
 @pytest.fixture
-def field_updates(api):
-    return api.request.field_updates()
+def field_updates(request_handler):
+    return request_handler.field_updates()
 
 
 @pytest.fixture
-def tour_schedules(api):
-    return api.request.tour_schedules()
+def tour_schedules(request_handler):
+    return request_handler.tour_schedules()
 
 
 @pytest.fixture
-def dg_rankings(api):
-    return api.request.data_golf_rankings()
+def dg_rankings(request_handler):
+    return request_handler.data_golf_rankings()
 
 
 @pytest.fixture
-def pre_tournament_predictions(api):
-    return api.request.pre_tournament_predictions()
+def pre_tournament_predictions(request_handler):
+    return request_handler.pre_tournament_predictions()
 
 
 @pytest.fixture
-def pre_tournament_predictions_archive(api):
-    return api.request.pre_tournament_predictions_archive()
+def pre_tournament_predictions_archive(request_handler):
+    return request_handler.pre_tournament_predictions_archive()
 
 
 @pytest.fixture
-def player_skill_decompositions(api):
-    return api.request.player_skill_decompositions()
+def player_skill_decompositions(request_handler):
+    return request_handler.player_skill_decompositions()
 
 
 @pytest.fixture
-def player_skill_ratings(api):
-    return api.request.player_skill_ratings()
+def player_skill_ratings(request_handler):
+    return request_handler.player_skill_ratings()
 
 
 @pytest.fixture
-def detailed_approach_skill(api):
-    return api.request.detailed_approach_skill()
+def detailed_approach_skill(request_handler):
+    return request_handler.detailed_approach_skill()
 
 
 @pytest.fixture
-def live_model_predictions(api):
-    return api.request.live_model_predictions()
+def live_model_predictions(request_handler):
+    return request_handler.live_model_predictions()
 
 
 @pytest.fixture
-def live_tournament_stats(api):
-    return api.request.live_tournament_stats()
+def live_tournament_stats(request_handler):
+    return request_handler.live_tournament_stats()
 
 
 @pytest.fixture
-def live_hole_scoring_distributions(api):
-    return api.request.live_hole_scoring_distributions()
+def live_hole_scoring_distributions(request_handler):
+    return request_handler.live_hole_scoring_distributions()
 
 
 class TestDgAPIRequestBase:
@@ -98,7 +98,7 @@ class TestDgAPIRequestBase:
         assert sorted(['last_updated', 'notes', 'rankings']) == sorted(list(dg_rankings.keys()))
 
     def test_pre_tournament_predictions(self, pre_tournament_predictions):
-        assert sorted(['baseline', 'baseline_history_fit', 'event_name', 'last_updated', 'models_available']) \
+        assert sorted(['baseline', 'baseline_history_fit', 'event_name', 'last_updated', 'models_available', 'dead_heats']) \
             == sorted(list(pre_tournament_predictions.keys()))
 
     def test_pre_tournament_predictions_archive(self, pre_tournament_predictions_archive):
