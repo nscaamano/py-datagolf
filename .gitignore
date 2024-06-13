@@ -163,3 +163,5 @@ pyvenv.cfg
 .DS_STORE
 launch.json
 setup.sh
+changes.patch
+internal_test.py
