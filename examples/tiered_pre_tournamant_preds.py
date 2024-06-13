@@ -1,5 +1,6 @@
 from datagolf.api import DgAPI
-from lookups.pga_champ_2024 import TIERS
+#from lookups.pga_champ_2024 import TIERS
+from lookups.us_open_2024 import TIERS
 from datagolf.models import PreTournamentPredModel
 from datagolf.utils import write_dict_data_to_csv
 

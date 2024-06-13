@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+import copy 
 from typing import (
     List, 
     Dict,
@@ -5,8 +7,6 @@ from typing import (
     Optional,
     Any,
 ) 
-from datetime import datetime, timedelta
-import copy 
 
 from .request import RequestHandler
 from .models import (
@@ -117,8 +117,8 @@ class DgAPI:
                 else:
                     str_fields[k] = v
         return {
-            "int_fields": int_fields,
-            "str_fields": str_fields
+            'int_fields': int_fields,
+            'str_fields': str_fields
         }
     
     @staticmethod
@@ -133,7 +133,7 @@ class DgAPI:
         # fails if non int string is passed to a field which expects an int 
         # some event ids can be int or string; maybe convert all event_ids to int before passing here. 
         
-        separated_keys = DgAPI._separate_filter_fields_by_type(filter_fields)
+        separated_filters = DgAPI._separate_filter_fields_by_type(filter_fields)
         
         def match_int(dg_object, misc_field: tuple):
             key = misc_field[0]
@@ -159,12 +159,12 @@ class DgAPI:
             
         matched_objects = set()
         
-        for k, v in separated_keys['int_fields'].items():
+        for k, v in separated_filters['int_fields'].items():
             for dg_object in dg_objects:
                 # TODO maybe don't pass tuple for misc_field
                 if match_int(dg_object, (k,v)): matched_objects.add(dg_object)
                         
-        for k, v in separated_keys['str_fields'].items():
+        for k, v in separated_filters['str_fields'].items():
             for dg_object in dg_objects:
                 if match_string(dg_object, (k,v)): matched_objects.add(dg_object)
         
@@ -172,8 +172,6 @@ class DgAPI:
             
     def get_players(
         self,      
-        #dg_id: Optional[Union[int, List[int]]] = None, 
-        #name: Optional[Union[str, List[str]]] = None,
         **kwargs
     ) -> List[PlayerModel]:
         # TODO all endpoint use file_format, no need to specify here. 

@@ -13,7 +13,7 @@ TIERS = {
     'TIER_2': [
         'Justin Thomas',
         'Cameron Smith',
-        'Matthew Fitzpatrick',
+        'Matt Fitzpatrick',
         'Max Homa',
         'Hideki Matsuyama',
         'Patrick Cantlay',
@@ -25,7 +25,7 @@ TIERS = {
 
     'TIER_3': [
         'Sam Burns',
-        'Joohyung Kim',
+        'Tom Kim',
         'Jordan Spieth',
         'Shane Lowry',
         'Min Woo Lee',
