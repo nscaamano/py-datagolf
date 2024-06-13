@@ -1,6 +1,6 @@
 from pydantic import BaseModel, confloat, conint
 from datetime import date, datetime
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Set
 
 
 class PlayerModel(BaseModel):
@@ -15,7 +15,13 @@ class PlayerModel(BaseModel):
     
     
 class EventModel(BaseModel):
-    event_id: Union[str, int]
+    '''
+        event_id is not unique 
+        'TBD' used for some
+        Seen duplicates across tours 
+        for example 
+    '''
+    event_id: Union[str, int] # no good includes 'TBD' need to use hash
     event_name: str 
     course_key: str 
     location: str 
@@ -23,12 +29,17 @@ class EventModel(BaseModel):
     latitude: Union[confloat(ge=-90, le=90), str]
     longitude: Union[confloat(ge=-180, le=180), str]
     start_date: date 
-    tour: str
+    tour: Optional[str] = None
     
+    def __getitem__(self, item):
+        return getattr(self, item)
+    
+    def __hash__(self):
+        return hash((self.event_id, self.course_key, self.event_name))
 
 class TourSchedulesModel(BaseModel):
     current_season: int
-    schedule: List[EventModel]
+    schedule: Set[EventModel]
     tour: str 
     
 

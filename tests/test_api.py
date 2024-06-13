@@ -1,7 +1,8 @@
+import datetime
 import pytest
 
 from datagolf.api import DgAPI
-from datagolf.models import PlayerModel
+from datagolf.models import PlayerModel, TourSchedulesModel, EventModel
 
 
 @pytest.fixture
@@ -74,3 +75,31 @@ class TestDgAPI:
         ])
         assert test_data == set(api.get_players(name=[
                                 'ludvig', 'spieth', 'finau'], dg_id=[5321, 23950]))
+
+    def test_get_tour_schedules_list_event_ids(self, api):
+        test_data = TourSchedulesModel(
+            current_season=2024,
+            schedule={
+                EventModel(event_id='28', event_name='Miami', course_key='21', location='Miami, FL', course='Trump National Doral', latitude=25.813, longitude=-80.339, start_date=datetime.date(2024, 4, 5), tour='alt (liv golf)'), 
+                EventModel(event_id=14, event_name='Masters Tournament', course_key='014', location='Augusta, GA', course='Augusta National Golf Club', latitude=33.5, longitude=-82.02, start_date=datetime.date(2024, 4, 11), tour='pga'), 
+                EventModel(event_id=28, event_name='BMW Championship', course_key='406', location='Castle Rock, CO', course='Castle Pines Golf Club', latitude=39.441, longitude=-104.899, start_date=datetime.date(2024, 8, 22), tour='pga'),    
+            },
+            tour='alt (liv golf), pga, kft, euro'
+        )   
+        
+        assert test_data == api.get_tour_schedules(event_id=[14, 28])
+        
+    def test_get_tour_schedules_event_id_and_tour(self, api):
+        test_data = TourSchedulesModel(
+            current_season=2024,
+            schedule={
+                EventModel(event_id=14, event_name='Masters Tournament', course_key='014', 
+                           location='Augusta, GA', course='Augusta National Golf Club', 
+                           latitude=33.5, longitude=-82.02, start_date=datetime.date(2024, 4, 11), tour=None
+                )
+            },
+            tour='pga'
+        )
+        
+        assert test_data == api.get_tour_schedules(event_name='masters', tour='pga')
+       

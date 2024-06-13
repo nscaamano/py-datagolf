@@ -5,6 +5,7 @@ from typing import (
     Optional,
 ) 
 from datetime import datetime, timedelta
+import copy 
 
 from .request import RequestHandler
 from .models import (
@@ -39,10 +40,10 @@ class DgAPI:
         endpoint_name = endpoint_func.__name__
         if not self._cache.get(endpoint_name):
             self._cache[endpoint_name] = endpoint_func(**kwargs) 
-            self._cache[DgAPI._cache_refesh_label] = datetime.now()
+            self._cache[DgAPI._cache_refesh_key] = datetime.now()
         
-        if self._cache.get(DgAPI._cache_refesh_label) and (
-            (datetime.now() - self._cache.get(DgAPI._cache_refesh_label)) > timedelta(minutes=self.cache_interval)
+        if self._cache.get(DgAPI._cache_refesh_key) and (
+            (datetime.now() - self._cache.get(DgAPI._cache_refesh_key)) > timedelta(minutes=self.cache_interval)
         ): self._cache[endpoint_name] = endpoint_func(**kwargs) 
     
     @staticmethod
@@ -50,7 +51,7 @@ class DgAPI:
         list_data: list, 
         dg_id: Optional[Union[int, List[int]]] = None, 
         name: Optional[Union[str, List[str]]] = None,
-    ) -> List[dict]:
+    ) -> list[dict]:
         
         if all(not param for param in (dg_id, name)):
             return list_data 
@@ -83,10 +84,63 @@ class DgAPI:
                 if match_name(dg_object):
                     matched_objects.add(dg_object.dg_id)
         
-        filtered_objects = [player for player in list_data if player.dg_id in matched_objects]
-        
-        return filtered_objects
+        return [player for player in list_data if player.dg_id in matched_objects]
     
+    @staticmethod
+    def _filter_dg_objects_any_field_test(
+        dg_objects: list, 
+        **filter_fields
+    ) -> list[dict]:
+        
+        if not filter_fields:
+            return dg_objects
+        
+        # fails if non int string is passed to a field which expects an int 
+        # some event ids can be int or string; maybe convert all event_ids to int before passing here. 
+        # maybe don't use tuples 
+        int_fields = [(k, v) for k,v in filter_fields.items() if isinstance(v, int) or any(isinstance(v_, int) for v_ in v)]
+        string_fields = [(k, v) for k,v in filter_fields.items() if isinstance(v, str) or any(isinstance(v_, str) for v_ in v)]
+        
+        def match_int(dg_object, misc_field: tuple):
+            key = misc_field[0]
+            value = misc_field[1]
+            if dg_object[key] == 'TBD': return False
+            if isinstance(value, list):
+                return int(dg_object[key]) in [int(id_) for id_ in value]
+            elif value is not None:
+                return dg_object[key] == int(value)
+            return True
+        
+        def match_string(dg_object, misc_field: tuple):
+            key = misc_field[0]
+            value = misc_field[1]
+            misc_str_value_lower = dg_object[key].lower()
+            
+            if isinstance(value, list):
+                return any(all(n.lower() in misc_str_value_lower for n in split_str) for split_str in (n.split() for n in value))
+            elif value is not None:
+                split_str = value.lower().split()
+                return all(n in misc_str_value_lower for n in split_str)
+            return True
+            
+        matched_objects = set()
+        
+        for field in int_fields:
+            value = field[1]
+            if value: # may be a pointless line becuase wouldn't be appended if no values 
+                # also maybe don't use tuple 
+                for dg_object in dg_objects:
+                    if match_int(dg_object, field): matched_objects.add(dg_object)
+                        
+        for field in string_fields:
+            value = field[1]
+            if value: # may be a pointless line becuase wouldn't be appended if no values 
+                # also maybe don't use tuple 
+                for dg_object in dg_objects:
+                    if match_string(dg_object, field): matched_objects.add(dg_object)
+        
+        return matched_objects
+            
     def get_players(
         self,      
         dg_id: Optional[Union[int, List[int]]] = None, 
@@ -132,21 +186,22 @@ class DgAPI:
     
     def get_tour_schedules(
         self,
-        event_name: Optional[Union[str, List[str]]] = None,
-        event_id: Optional[Union[int, List[int]]] = None, 
-        # location,
-        # course
-        # TODO support to filter on any field in model for this endpoint's list items. 
         **kwargs
     ) -> TourSchedulesModel: 
+        endpoint_fields = ['file_format', 'tour']  # look up somewhere ? different for each get method
+    
+        filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
+        kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
+        
+        
         endpoint = self._request.tour_schedules
         self._check_cache(endpoint, **kwargs)
         
-        tour_schedules = self._cache[endpoint.__name__]
-        tour_schedules['schedule'] = DgAPI._filter_dg_objects(
-            list_data=[EventModel(**event) for event in tour_schedules['schedule']], 
-            name=event_name, 
-            dg_id=event_id, # TODO change to misc_id for now; later support any field filtering 
+        tour_schedules = copy.deepcopy(self._cache[endpoint.__name__])      
+
+        tour_schedules['schedule'] = DgAPI._filter_dg_objects_any_field_test(
+            dg_objects=[EventModel(**event) for event in tour_schedules['schedule']], 
+            **filter_fields
         )
         return TourSchedulesModel(**tour_schedules)
     
