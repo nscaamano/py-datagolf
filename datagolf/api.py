@@ -3,6 +3,7 @@ from typing import (
     Dict,
     Union, 
     Optional,
+    Any,
 ) 
 from datetime import datetime, timedelta
 import copy 
@@ -87,6 +88,40 @@ class DgAPI:
         return [player for player in list_data if player.dg_id in matched_objects]
     
     @staticmethod
+    def _separate_filter_fields_by_type(data: Dict[str, Union[int, str, List[Union[int, str]]]]) -> Dict[str, Dict[str, Any]]:
+        
+        int_fields = {}
+        str_fields = {}
+        
+        def is_int_string(s: str) -> bool:
+            try:
+                int(s)
+                return True
+            except ValueError:
+                return False
+
+        for k, v in data.items():
+            if isinstance(v, list):
+                if v and isinstance(v[0], int):
+                    int_fields[k] = v
+                elif v and isinstance(v[0], str):
+                    if is_int_string(v[0]):
+                        int_fields[k] = [int(v) for v in v]
+                    else:
+                        str_fields[k] = v
+            elif isinstance(v, int):
+                int_fields[k] = v
+            elif isinstance(v, str):
+                if is_int_string(v):
+                    int_fields[k] = int(v)
+                else:
+                    str_fields[k] = v
+        return {
+            "int_fields": int_fields,
+            "str_fields": str_fields
+        }
+    
+    @staticmethod
     def _filter_dg_objects_any_field_test(
         dg_objects: list, 
         **filter_fields
@@ -97,9 +132,8 @@ class DgAPI:
         
         # fails if non int string is passed to a field which expects an int 
         # some event ids can be int or string; maybe convert all event_ids to int before passing here. 
-        # maybe don't use tuples 
-        int_fields = [(k, v) for k,v in filter_fields.items() if isinstance(v, int) or any(isinstance(v_, int) for v_ in v)]
-        string_fields = [(k, v) for k,v in filter_fields.items() if isinstance(v, str) or any(isinstance(v_, str) for v_ in v)]
+        
+        separated_keys = DgAPI._separate_filter_fields_by_type(filter_fields)
         
         def match_int(dg_object, misc_field: tuple):
             key = misc_field[0]
@@ -125,35 +159,40 @@ class DgAPI:
             
         matched_objects = set()
         
-        for field in int_fields:
-            value = field[1]
-            if value: # may be a pointless line becuase wouldn't be appended if no values 
-                # also maybe don't use tuple 
-                for dg_object in dg_objects:
-                    if match_int(dg_object, field): matched_objects.add(dg_object)
+        for k, v in separated_keys['int_fields'].items():
+            for dg_object in dg_objects:
+                # TODO maybe don't pass tuple for misc_field
+                if match_int(dg_object, (k,v)): matched_objects.add(dg_object)
                         
-        for field in string_fields:
-            value = field[1]
-            if value: # may be a pointless line becuase wouldn't be appended if no values 
-                # also maybe don't use tuple 
-                for dg_object in dg_objects:
-                    if match_string(dg_object, field): matched_objects.add(dg_object)
+        for k, v in separated_keys['str_fields'].items():
+            for dg_object in dg_objects:
+                if match_string(dg_object, (k,v)): matched_objects.add(dg_object)
         
         return matched_objects
             
     def get_players(
         self,      
-        dg_id: Optional[Union[int, List[int]]] = None, 
-        name: Optional[Union[str, List[str]]] = None,
+        #dg_id: Optional[Union[int, List[int]]] = None, 
+        #name: Optional[Union[str, List[str]]] = None,
         **kwargs
     ) -> List[PlayerModel]:
+        # TODO all endpoint use file_format, no need to specify here. 
+        endpoint_fields = ['file_format']
+        
+        # TODO move this logic elsewhere since used a lot. 
+        filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
+        kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
+        
         endpoint = self._request.player_list
         self._check_cache(endpoint, **kwargs)
         
-        return DgAPI._filter_dg_objects(
-            list_data=[PlayerModel(**player) for player in self._cache[endpoint.__name__]], 
-            name=name, 
-            dg_id=dg_id
+        # test if this is necessary here as well. Noticed issue with tour schedules filtering cache as well.
+        # perhaps because nested dict  
+        players = copy.deepcopy(self._cache[endpoint.__name__])      
+        
+        return DgAPI._filter_dg_objects_any_field_test(
+            dg_objects=[PlayerModel(**player) for player in self._cache[endpoint.__name__]], 
+            **filter_fields
         )
     
     def get_player_field_updates(

@@ -10,6 +10,9 @@ class PlayerModel(BaseModel):
     country_code: str 
     amateur: bool
     
+    def __getitem__(self, item):
+        return getattr(self, item)
+    
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
     
