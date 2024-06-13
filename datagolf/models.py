@@ -1,4 +1,4 @@
-from pydantic import BaseModel, confloat, conint
+from pydantic import BaseModel, confloat, conint, Field
 from datetime import date, datetime
 from typing import List, Optional, Union, Set
 
@@ -67,6 +67,12 @@ class PlayerFieldUpdateModel(BaseModel):
     unofficial: int 
     yh_id: str 
     yh_salary: int  
+    
+    def __getitem__(self, item):
+        return getattr(self, item)
+    
+    def __hash__(self):
+        return hash((self.dg_id, self.course))
     
 
 class PlayerFieldUpdatesModel(BaseModel):

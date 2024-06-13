@@ -2,7 +2,12 @@ import datetime
 import pytest
 
 from datagolf.api import DgAPI
-from datagolf.models import PlayerModel, TourSchedulesModel, EventModel
+from datagolf.models import (
+    PlayerModel, 
+    TourSchedulesModel, 
+    EventModel,
+    PlayerFieldUpdatesModel
+)
 
 
 @pytest.fixture
@@ -102,4 +107,10 @@ class TestDgAPI:
         )
         
         assert test_data == api.get_tour_schedules(event_name='masters', tour='pga')
+    
+    def test_get_player_field_updates(self, api):
+        assert isinstance(api.get_player_field_updates(), PlayerFieldUpdatesModel)
+        
+    def test_get_player_field_updates_str_filter_field(self, api):
+        assert isinstance(api.get_player_field_updates(country='USA'), PlayerFieldUpdatesModel)
        

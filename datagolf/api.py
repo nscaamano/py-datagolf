@@ -145,8 +145,8 @@ class DgAPI:
         endpoint = self._request.player_list
         self._check_cache(endpoint, **kwargs)
         
-        # test if this is necessary here as well. Noticed issue with tour schedules filtering cache as well.
-        # perhaps because nested dict  
+        # TODO test if this is necessary here as well. Noticed issue with tour schedules filtering cache as well.
+        # perhaps because nested dict in schedules model 
         players = copy.deepcopy(self._cache[endpoint.__name__])      
         
         return DgAPI._filter_dg_objects(
@@ -154,20 +154,24 @@ class DgAPI:
             **filter_fields
         )
     
+    # TODO decorator to parse kwargs and assign endpoint fields based on lookup 
     def get_player_field_updates(
         self,
-        dg_id: Optional[Union[int, List[int]]] = None, 
-        name: Optional[Union[str, List[str]]] = None,
         **kwargs
     ) -> PlayerFieldUpdatesModel:
+        endpoint_fields = ['tour', 'file_format']
+        
+        filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
+        kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
+        
         endpoint = self._request.field_updates
         self._check_cache(endpoint, **kwargs)
         
-        update = self._cache[endpoint.__name__]
+        update = copy.deepcopy(self._cache[endpoint.__name__])
+        
         update['field'] = DgAPI._filter_dg_objects(
-            list_data=[PlayerFieldUpdateModel(**update) for update in update['field']], 
-            name=name, 
-            dg_id=dg_id
+            dg_objects=[PlayerFieldUpdateModel(**update) for update in update['field']], 
+            **filter_fields
         )
         return PlayerFieldUpdatesModel(**update)
 
@@ -202,6 +206,13 @@ class DgAPI:
             **filter_fields
         )
         return TourSchedulesModel(**tour_schedules)
+    '''
+    def get_live_hole_scoring_distributions(
+        self,
+        **kwargs
+    ) -> PlaceHolder: 
+        pass 
+    '''
     
     def get_player_live_stats(): pass 
     
