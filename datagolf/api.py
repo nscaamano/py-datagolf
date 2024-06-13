@@ -47,45 +47,6 @@ class DgAPI:
             (datetime.now() - self._cache.get(DgAPI._cache_refesh_key)) > timedelta(minutes=self.cache_interval)
         ): self._cache[endpoint_name] = endpoint_func(**kwargs) 
     
-    @staticmethod
-    def _filter_dg_objects(
-        list_data: list, 
-        dg_id: Optional[Union[int, List[int]]] = None, 
-        name: Optional[Union[str, List[str]]] = None,
-    ) -> list[dict]:
-        
-        if all(not param for param in (dg_id, name)):
-            return list_data 
-    
-        def match_dg_id(dg_object):
-            if isinstance(dg_id, list):
-                return dg_object.dg_id in [int(id_) for id_ in dg_id]
-            elif dg_id is not None:
-                return dg_object.dg_id == int(dg_id)
-            return True
-        
-        def match_name(dg_object):
-            player_name_lower = dg_object.player_name.lower()
-            if isinstance(name, list):
-                return any(all(n.lower() in player_name_lower for n in split_name) for split_name in (n.split() for n in name))
-            elif name is not None:
-                split_name = name.lower().split()
-                return all(n in player_name_lower for n in split_name)
-            return True
-        
-        matched_objects = set()
-    
-        if dg_id:
-            for dg_object in list_data:
-                if match_dg_id(dg_object):
-                    matched_objects.add(dg_object.dg_id)
-        
-        if name:
-            for dg_object in list_data:
-                if match_name(dg_object):
-                    matched_objects.add(dg_object.dg_id)
-        
-        return [player for player in list_data if player.dg_id in matched_objects]
     
     @staticmethod
     def _separate_filter_fields_by_type(data: Dict[str, Union[int, str, List[Union[int, str]]]]) -> Dict[str, Dict[str, Any]]:
@@ -122,7 +83,7 @@ class DgAPI:
         }
     
     @staticmethod
-    def _filter_dg_objects_any_field_test(
+    def _filter_dg_objects(
         dg_objects: list, 
         **filter_fields
     ) -> list[dict]:
@@ -188,7 +149,7 @@ class DgAPI:
         # perhaps because nested dict  
         players = copy.deepcopy(self._cache[endpoint.__name__])      
         
-        return DgAPI._filter_dg_objects_any_field_test(
+        return DgAPI._filter_dg_objects(
             dg_objects=[PlayerModel(**player) for player in self._cache[endpoint.__name__]], 
             **filter_fields
         )
@@ -236,7 +197,7 @@ class DgAPI:
         
         tour_schedules = copy.deepcopy(self._cache[endpoint.__name__])      
 
-        tour_schedules['schedule'] = DgAPI._filter_dg_objects_any_field_test(
+        tour_schedules['schedule'] = DgAPI._filter_dg_objects(
             dg_objects=[EventModel(**event) for event in tour_schedules['schedule']], 
             **filter_fields
         )
