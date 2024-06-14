@@ -150,11 +150,7 @@ class DgAPI:
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
         
         endpoint = self._request.player_list
-        self._check_cache(endpoint, **kwargs)
-        
-        # TODO test if this is necessary here as well. Noticed issue with tour schedules filtering cache as well.
-        # perhaps because nested dict in schedules model 
-        players = copy.deepcopy(self._cache[endpoint.__name__])      
+        self._check_cache(endpoint, **kwargs)     
         
         return DgAPI._filter_dg_objects(
             dg_objects=[PlayerModel(**player) for player in self._cache[endpoint.__name__]], 
@@ -162,6 +158,7 @@ class DgAPI:
         )
     
     # TODO decorator to parse kwargs and assign endpoint fields based on lookup 
+    # keep in mind nested lists need deep copy from cache
     def get_player_field_updates(
         self,
         **kwargs
@@ -174,13 +171,13 @@ class DgAPI:
         endpoint = self._request.field_updates
         self._check_cache(endpoint, **kwargs)
         
-        update = copy.deepcopy(self._cache[endpoint.__name__])
+        data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        update['field'] = DgAPI._filter_dg_objects(
-            dg_objects=[PlayerFieldUpdateModel(**update) for update in update['field']], 
+        data['field'] = DgAPI._filter_dg_objects(
+            dg_objects=[PlayerFieldUpdateModel(**update) for update in data['field']], 
             **filter_fields
         )
-        return PlayerFieldUpdatesModel(**update)
+        return PlayerFieldUpdatesModel(**data)
 
     def get_current_tournament(self, **kwargs) -> Dict[str, str]:
         # TODO for this method and next. Specify tour in returned struct.
@@ -206,13 +203,13 @@ class DgAPI:
         endpoint = self._request.tour_schedules
         self._check_cache(endpoint, **kwargs)
         
-        tour_schedules = copy.deepcopy(self._cache[endpoint.__name__])      
+        data = copy.deepcopy(self._cache[endpoint.__name__])      
 
-        tour_schedules['schedule'] = DgAPI._filter_dg_objects(
-            dg_objects=[EventModel(**event) for event in tour_schedules['schedule']], 
+        data['schedule'] = DgAPI._filter_dg_objects(
+            dg_objects=[EventModel(**event) for event in data['schedule']], 
             **filter_fields
         )
-        return TourSchedulesModel(**tour_schedules)
+        return TourSchedulesModel(**data)
     
     def get_live_hole_scoring_distributions(
         self,
@@ -221,6 +218,8 @@ class DgAPI:
         """potential params 
             morning, afternoon 
             round num 
+            tournament -> course 
+                i think endpoint can return more than one course
         """
         
         endpoint_fields = DgAPI._base_endpoint_fields
@@ -246,8 +245,8 @@ class DgAPI:
     def get_avg_score_per_hole():
         """
             morning, afternoon 
-            round num default to all
-            I might have to avg them all manually, api doesn't do it it appears
+            round num default to all -> I might have to avg them all manually, api doesn't do it it appears
+            course
         """
         pass 
     def get_player_live_stats(): pass 
