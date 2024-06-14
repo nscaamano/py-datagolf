@@ -104,4 +104,37 @@ class PreTournamentPredModel(BaseModel):
     top_5: float
     win: float 
     
+class LiveHoleScoringWaveData(BaseModel):
+    avg_score: Optional[float] 
+    birdies: int 
+    bogeys: int 
+    doubles_or_worse: int 
+    eagles_or_better: int 
+    pars: int 
+    players_thru: int 
+    
+class LiveHoleScoringHoleData(BaseModel):
+    afternoon_wave: LiveHoleScoringWaveData 
+    hole: int 
+    morning_wave: LiveHoleScoringWaveData 
+    par: int
+    total: LiveHoleScoringWaveData 
+    yardage: int
+    
+class LiveHoleScoringRoundData(BaseModel):
+    holes: List[LiveHoleScoringHoleData] 
+    round_num: int 
+
+    
+class LiveHoleScoringCourseData(BaseModel):
+    course_code: str 
+    course_key: str
+    rounds: List[LiveHoleScoringRoundData] 
+    
+class LiveHoleScoringDistributions(BaseModel):
+    courses: List[LiveHoleScoringCourseData]
+    current_round: int
+    event_name: str 
+    last_update: str
+    
     

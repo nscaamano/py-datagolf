@@ -6,7 +6,8 @@ from datagolf.models import (
     PlayerModel, 
     TourSchedulesModel, 
     EventModel,
-    PlayerFieldUpdatesModel
+    PlayerFieldUpdatesModel,
+    LiveHoleScoringDistributions
 )
 
 
@@ -113,4 +114,6 @@ class TestDgAPI:
         
     def test_get_player_field_updates_str_filter_field(self, api):
         assert isinstance(api.get_player_field_updates(country='USA'), PlayerFieldUpdatesModel)
-       
+    
+    def test_live_hole_scoring_distributions(self, api):
+        assert isinstance(api.get_live_hole_scoring_distributions(), LiveHoleScoringDistributions)

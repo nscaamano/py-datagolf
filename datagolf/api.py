@@ -15,6 +15,11 @@ from .models import (
     PlayerFieldUpdatesModel,
     TourSchedulesModel,
     EventModel,
+    LiveHoleScoringDistributions,
+    LiveHoleScoringCourseData,
+    LiveHoleScoringRoundData,
+    LiveHoleScoringHoleData,
+    LiveHoleScoringWaveData,
 )
 
 
@@ -23,6 +28,8 @@ class DgAPI:
     """
     
     _cache_refesh_key = 'last_refresh'
+    
+    _base_endpoint_fields = ('tour', 'file_format')
     
     def __init__(self, api_key: Optional[str] = None):
             
@@ -136,7 +143,7 @@ class DgAPI:
         **kwargs
     ) -> List[PlayerModel]:
         # TODO all endpoint use file_format, no need to specify here. 
-        endpoint_fields = ['file_format']
+        endpoint_fields = ('file_format')
         
         # TODO move this logic elsewhere since used a lot. 
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
@@ -159,7 +166,7 @@ class DgAPI:
         self,
         **kwargs
     ) -> PlayerFieldUpdatesModel:
-        endpoint_fields = ['tour', 'file_format']
+        endpoint_fields = DgAPI._base_endpoint_fields
         
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
@@ -190,7 +197,7 @@ class DgAPI:
         self,
         **kwargs
     ) -> TourSchedulesModel: 
-        endpoint_fields = ['file_format', 'tour']  # look up somewhere ? different for each get method
+        endpoint_fields = DgAPI._base_endpoint_fields
     
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
@@ -206,14 +213,43 @@ class DgAPI:
             **filter_fields
         )
         return TourSchedulesModel(**tour_schedules)
-    '''
+    
     def get_live_hole_scoring_distributions(
         self,
         **kwargs
-    ) -> PlaceHolder: 
-        pass 
-    '''
+    ) -> LiveHoleScoringDistributions: 
+        """potential params 
+            morning, afternoon 
+            round num 
+        """
+        
+        endpoint_fields = DgAPI._base_endpoint_fields
+        
+        endpoint = self._request.live_hole_scoring_distributions 
+        self._check_cache(endpoint, **kwargs)
+        
+        data =copy.deepcopy(self._cache[endpoint.__name__]) 
     
+        for course in data['courses']:
+            for round_data in course['rounds']:
+                for hole in round_data['holes']:
+                    for k, v in hole.items():
+                        if 'wave' in k or k == 'total':
+                            hole[k] = LiveHoleScoringWaveData(**v)
+                    hole.update(LiveHoleScoringHoleData(**hole).model_dump())
+                round_data.update(LiveHoleScoringRoundData(**round_data).model_dump())
+            course.update(LiveHoleScoringCourseData(**course).model_dump())
+        return LiveHoleScoringDistributions(**data)
+        
+        
+
+    def get_avg_score_per_hole():
+        """
+            morning, afternoon 
+            round num default to all
+            I might have to avg them all manually, api doesn't do it it appears
+        """
+        pass 
     def get_player_live_stats(): pass 
     
     def get_player_live_score(): pass 
