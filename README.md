@@ -8,6 +8,7 @@ This library provides a Python interface for the [Datagolf's](https://datagolf.c
 Not publishsed yet.
 For now clone and see requirements.txt. 
 
+Run ```python setup.py install```
 
 ## Models
 This library uses models to verify and represent the various structures returned from the API. They are:
