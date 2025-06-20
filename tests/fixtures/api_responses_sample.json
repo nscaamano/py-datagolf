@@ -1,0 +1,512 @@
+{
+  "timestamp": "2025-06-20T16:38:53.070467",
+  "endpoints": {
+    "player_list": {
+      "description": "Player List & IDs",
+      "success": true,
+      "response_type": "list",
+      "response": {
+        "list_length": 3873,
+        "first_item_keys": [
+          "amateur",
+          "country",
+          "country_code",
+          "dg_id",
+          "player_name"
+        ],
+        "sample_items": [
+          {
+            "amateur": 0,
+            "country": "United States",
+            "country_code": "USA",
+            "dg_id": 32153,
+            "player_name": "Abbate, Ryan"
+          },
+          {
+            "amateur": 0,
+            "country": "England",
+            "country_code": "ENG",
+            "dg_id": 14794,
+            "player_name": "Abbott, Jamie"
+          },
+          {
+            "amateur": 0,
+            "country": "Sweden",
+            "country_code": "SWE",
+            "dg_id": 23950,
+            "player_name": "Aberg, Ludvig"
+          }
+        ]
+      },
+      "error": null
+    },
+    "field_updates": {
+      "description": "Field Updates",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "current_round",
+          "event_id",
+          "event_name",
+          "field",
+          "last_updated"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'current_round': 2, 'event_id': 34, 'event_name': 'Travelers Championship', 'field': [{'am': 0, 'country': 'SWE', 'course': 'TPC River Highlands', 'dg_id': 23950, 'dk_id': '39159700', 'dk_salary': 9500, 'early_late': 0, 'fd_id': 'n/a', 'fd_salary': 0, 'flag': 'SWE', 'pga_number': 52955, 'player_name': 'Aberg, Ludvig', 'r1_teetime': '2025-06-19 10:25', 'r2_teetime': '2025-06-20 13:35', 'r3_teetime': None, 'r4_teetime': None, 'start_hole': 1, 'unofficial': 0, 'yh_id': 'n/a', 'yh_salary': 0}, {'am..."
+      },
+      "error": null
+    },
+    "tour_schedules": {
+      "description": "Tour Schedules",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "current_season",
+          "schedule",
+          "tour"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'current_season': 2025, 'schedule': [{'course': 'Royal Queensland GC', 'course_key': 'royal queensland gc', 'event_id': '2025100', 'event_name': 'BMW Australian PGA Championship', 'latitude': -27.439, 'location': 'Brisbane, Australia', 'longitude': 153.092, 'start_date': '2024-11-21', 'tour': 'euro'}, {'course': 'Kingston Heath GC', 'course_key': 'kingston heath gc', 'event_id': '2025101', 'event_name': 'ISPS Handa Australian Open', 'latitude': -37.955, 'location': 'Melbourne, Victoria, Austral..."
+      },
+      "error": null
+    },
+    "data_golf_rankings": {
+      "description": "Data Golf Rankings",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "last_updated",
+          "notes",
+          "rankings"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'last_updated': '2025-06-16 13:18:52 UTC', 'notes': 'anyone ranked outside top 500 in OWGR appear as 501', 'rankings': [{'am': 0, 'country': 'USA', 'datagolf_rank': 1, 'dg_id': 18417, 'dg_skill_estimate': 3.07338791550579, 'owgr_rank': 1, 'player_name': 'Scheffler, Scottie', 'primary_tour': 'PGA'}, {'am': 0, 'country': 'ESP', 'datagolf_rank': 2, 'dg_id': 19195, 'dg_skill_estimate': 2.04229423547352, 'owgr_rank': 59, 'player_name': 'Rahm, Jon', 'primary_tour': 'LIV'}, {'am': 0, 'country': 'USA',..."
+      },
+      "error": null
+    },
+    "pre_tournament_predictions": {
+      "description": "Pre-Tournament Predictions",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "baseline",
+          "baseline_history_fit",
+          "dead_heats",
+          "event_name",
+          "last_updated",
+          "models_available"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'baseline': [{'am': 0, 'country': 'USA', 'dg_id': 18417, 'make_cut': 1, 'player_name': 'Scheffler, Scottie', 'sample_size': 150, 'top_10': 0.609314645863396, 'top_20': 0.782829599058349, 'top_5': 0.447767023809524, 'win': 0.1772}, {'am': 0, 'country': 'NIR', 'dg_id': 10091, 'make_cut': 1, 'player_name': 'McIlroy, Rory', 'sample_size': 150, 'top_10': 0.327503370564621, 'top_20': 0.525711511174011, 'top_5': 0.192769021164021, 'win': 0.0473666666666667}, {'am': 0, 'country': 'USA', 'dg_id': 22085,..."
+      },
+      "error": null
+    },
+    "pre_tournament_predictions_archive": {
+      "description": "Pre-Tournament Predictions Archive",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "baseline",
+          "baseline_history_fit",
+          "event_completed",
+          "event_id",
+          "event_name",
+          "models_available"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'baseline': [{'dg_id': 18417, 'fin_text': 'T7', 'first_round_leader': 15.29, 'make_cut': 1.1, 'player_name': 'Scheffler, Scottie', 'top_10': 1.64, 'top_20': 1.31, 'top_3': 2.79, 'top_30': 1.2, 'top_5': 2.17, 'win': 5.38}, {'dg_id': 19841, 'fin_text': 'CUT', 'first_round_leader': 20.53, 'make_cut': 1.17, 'player_name': 'DeChambeau, Bryson', 'top_10': 2.15, 'top_20': 1.58, 'top_3': 4.33, 'top_30': 1.37, 'top_5': 3.15, 'win': 9.57}, {'dg_id': 19195, 'fin_text': 'T7', 'first_round_leader': 35.01, '..."
+      },
+      "error": null
+    },
+    "player_skill_decompositions": {
+      "description": "Player Skill Decompositions",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "course_name",
+          "event_name",
+          "last_updated",
+          "notes",
+          "players"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'course_name': 'TPC River Highlands', 'event_name': 'Travelers Championship', 'last_updated': '2025-06-18 19:28:13 UTC', 'notes': 'All values/adjustments are in strokes-gained vs average PGA Tour field per round.', 'players': [{'age': 29, 'age_adjustment': 0.0157456133817195, 'am': 0, 'baseline_pred': 3.07309697973397, 'cf_approach_comp': -0.0126873816759864, 'cf_short_comp': -0.11324384576877, 'country': 'USA', 'course_experience_adjustment': 0.0634563518400283, 'course_history_adjustment': -0..."
+      },
+      "error": null
+    },
+    "player_skill_ratings": {
+      "description": "Player Skill Ratings",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "last_updated",
+          "players"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'last_updated': '2025-06-16 16:48:42 UTC', 'players': [{'dg_id': 18417, 'driving_acc': 0.06, 'driving_dist': 6.371, 'player_name': 'Scheffler, Scottie', 'sg_app': 1.433, 'sg_arg': 0.357, 'sg_ott': 0.802, 'sg_putt': 0.421, 'sg_total': 3.013}, {'dg_id': 19841, 'driving_acc': -0.01, 'driving_dist': 26.044, 'player_name': 'DeChambeau, Bryson', 'sg_app': 0.439, 'sg_arg': 0.246, 'sg_ott': 1.417, 'sg_putt': 0.223, 'sg_total': 2.325}, {'dg_id': 19195, 'driving_acc': 0.029, 'driving_dist': 14.067, 'play..."
+      },
+      "error": null
+    },
+    "detailed_approach_skill": {
+      "description": "Detailed Approach Skill",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "data",
+          "last_updated",
+          "time_period"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'data': [{'100_150_fw_gir_rate': 0.867, '100_150_fw_good_shot_rate': 0.09, '100_150_fw_low_data_indicator': 0, '100_150_fw_poor_shot_avoid_rate': 0.968, '100_150_fw_proximity_per_shot': 18.952, '100_150_fw_sg_per_shot': 0.067, '100_150_fw_shot_count': 598, '150_200_fw_gir_rate': 0.763, '150_200_fw_good_shot_rate': 0.074, '150_200_fw_low_data_indicator': 0, '150_200_fw_poor_shot_avoid_rate': 0.963, '150_200_fw_proximity_per_shot': 26.983, '150_200_fw_sg_per_shot': 0.083, '150_200_fw_shot_count':..."
+      },
+      "error": null
+    },
+    "live_model_predictions": {
+      "description": "Live Model Predictions",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "data",
+          "info"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'data': [{'R1': 62, 'R2': 69, 'R3': None, 'R4': None, 'country': 'USA', 'course': 'TR', 'current_pos': 'T1', 'current_score': -9, 'dg_id': 18417, 'end_hole': 18, 'make_cut': 1, 'player_name': 'Scheffler, Scottie', 'round': 2, 'thru': 18, 'today': -1, 'top_10': 0.95048, 'top_20': 0.98956, 'top_5': 0.86664, 'win': 0.458224761904762}, {'R1': 67, 'R2': 64, 'R3': None, 'R4': None, 'country': 'USA', 'course': 'TR', 'current_pos': 'T1', 'current_score': -9, 'dg_id': 14139, 'end_hole': 18, 'make_cut': ..."
+      },
+      "error": null
+    },
+    "live_tournament_stats": {
+      "description": "Live Tournament Stats",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "course_name",
+          "event_name",
+          "last_updated",
+          "live_stats",
+          "stat_display",
+          "stat_round"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'course_name': 'TPC River Highlands', 'event_name': 'Travelers Championship', 'last_updated': '2025-06-20 20:38:41 UTC', 'live_stats': [{'course': 'TR', 'dg_id': 14139, 'player_name': 'Thomas, Justin', 'position': 'T1', 'round': -6, 'sg_app': 3.26, 'sg_arg': -0.15, 'sg_ott': 0.01, 'sg_putt': 3.77, 'sg_t2g': 3.12, 'sg_total': 6.89, 'thru': 18, 'total': -9}, {'course': 'TR', 'dg_id': 18417, 'player_name': 'Scheffler, Scottie', 'position': 'T1', 'round': -1, 'sg_app': -1.18, 'sg_arg': 1.06, 'sg_ot..."
+      },
+      "error": null
+    },
+    "live_hole_scoring_distributions": {
+      "description": "Live Hole Scoring Distributions",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "courses",
+          "current_round",
+          "event_name",
+          "last_update"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'courses': [{'course_code': 'TR', 'course_key': '503', 'rounds': [{'holes': [{'afternoon_wave': {'avg_score': 4.222, 'birdies': 2, 'bogeys': 10, 'doubles_or_worse': 0, 'eagles_or_better': 0, 'pars': 24, 'players_thru': 36}, 'hole': 1, 'morning_wave': {'avg_score': 4.0, 'birdies': 7, 'bogeys': 5, 'doubles_or_worse': 1, 'eagles_or_better': 0, 'pars': 23, 'players_thru': 36}, 'par': 4, 'total': {'avg_score': 4.111, 'birdies': 9, 'bogeys': 15, 'doubles_or_worse': 1, 'eagles_or_better': 0, 'pars': 4..."
+      },
+      "error": null
+    },
+    "fantasy_projection_defaults": {
+      "description": "Fantasy Projection Defaults",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "event_name",
+          "last_updated",
+          "note",
+          "projections",
+          "site",
+          "slate",
+          "tour"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'event_name': 'Travelers Championship', 'last_updated': '2025-06-20 09:01:05 UTC', 'note': 'projections released', 'projections': [{'dg_id': 18417, 'early_late_wave': 0, 'player_name': 'Scheffler, Scottie', 'proj_ownership': 39.1, 'proj_points_finish': 14.06, 'proj_points_scoring': 92.27, 'proj_points_total': 106.33, 'r1_teetime': '1:45 pm', 'salary': 13300, 'site_name_id': 'Scottie Scheffler (39133426)'}, {'dg_id': 10091, 'early_late_wave': 1, 'player_name': 'McIlroy, Rory', 'proj_ownership': ..."
+      },
+      "error": null
+    },
+    "outright_odds": {
+      "description": "Outright Odds",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "books_offering",
+          "event_name",
+          "last_updated",
+          "market",
+          "notes",
+          "odds"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'books_offering': ['bet365', 'betonline', 'betmgm', 'betway', 'bovada', 'caesars', 'draftkings', 'fanduel', 'pinnacle', 'skybet', 'pointsbet', 'williamhill', 'unibet'], 'event_name': 'Travelers Championship', 'last_updated': '2025-06-20 02:47:22 UTC', 'market': 'win', 'notes': 'Tournament is live, baseline model not available.', 'odds': [{'bet365': 1.8, 'betmgm': 1.85, 'betonline': 1.8, 'betway': 1.73, 'bovada': 1.8, 'caesars': 1.65, 'datagolf': {'baseline': None, 'baseline_history_fit': 1.9148..."
+      },
+      "error": null
+    },
+    "matchup_odds": {
+      "description": "Match-Up & 3-Ball Odds",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "event_name": "Travelers Championship",
+        "last_updated": "2025-06-20 14:32:00 UTC",
+        "market": "tournament_matchups",
+        "match_list": "No tournament_matchups being offered right now."
+      },
+      "error": null
+    },
+    "matchup_odds_all_pairings": {
+      "description": "Match-Up & 3-Ball All Pairings",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "event_name",
+          "last_update",
+          "pairings",
+          "round"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'event_name': 'Travelers Championship', 'last_update': '2025-06-19 22:12:15 UTC', 'pairings': [{'course': 'TPC River Highlands', 'group': 1, 'p1': {'dg_id': 17606, 'name': 'Berger, Daniel', 'odds': 1.87}, 'p2': {'dg_id': 25569, 'name': 'Stevens, Sam', 'odds': 2.77}, 'p3': {'dg_id': -1, 'name': 'Tie', 'odds': 9.5}, 'start_hole': 1, 'teetime': '2025-06-20 08:00'}, {'course': 'TPC River Highlands', 'group': 2, 'p1': {'dg_id': 12577, 'name': 'Woodland, Gary', 'odds': 2.21}, 'p2': {'dg_id': 13508, '..."
+      },
+      "error": null
+    },
+    "historical_raw_data_event_ids": {
+      "description": "Historical Raw Data Event IDs",
+      "success": true,
+      "response_type": "list",
+      "response": {
+        "list_length": 2503,
+        "first_item_keys": [
+          "calendar_year",
+          "date",
+          "event_id",
+          "event_name",
+          "sg_categories",
+          "tour",
+          "traditional_stats"
+        ],
+        "sample_items": [
+          {
+            "calendar_year": 2025,
+            "date": "2025-06-15",
+            "event_id": 26,
+            "event_name": "U.S. Open",
+            "sg_categories": "yes",
+            "tour": "pga",
+            "traditional_stats": "yes"
+          },
+          {
+            "calendar_year": 2025,
+            "date": "2025-06-15",
+            "event_id": 10889,
+            "event_name": "Hana Bank Invitational",
+            "sg_categories": "no",
+            "tour": "jpn",
+            "traditional_stats": "no"
+          },
+          {
+            "calendar_year": 2025,
+            "date": "2025-06-15",
+            "event_id": 2025319,
+            "event_name": "Raiffeisenbank Golf Challenge",
+            "sg_categories": "no",
+            "tour": "cha",
+            "traditional_stats": "no"
+          }
+        ]
+      },
+      "error": null
+    },
+    "historical_round_scoring_data": {
+      "description": "Historical Round Scoring Data",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "event_completed",
+          "event_id",
+          "event_name",
+          "scores",
+          "season",
+          "sg_categories",
+          "tour",
+          "traditional_stats",
+          "year"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'event_completed': '2023-04-09', 'event_id': '14', 'event_name': 'Masters Tournament', 'scores': [{'dg_id': 19195, 'fin_text': '1', 'player_name': 'Rahm, Jon', 'round_1': {'birdies': 7, 'bogies': 0, 'course_name': 'Augusta National Golf Club', 'course_num': 14, 'course_par': 72, 'doubles_or_worse': 1, 'driving_acc': 1.0, 'driving_dist': 312.4, 'eagles_or_better': 1, 'gir': 0.944, 'great_shots': 6, 'pars': 9, 'poor_shots': 2, 'prox_fw': 31.963, 'prox_rgh': None, 'score': 65, 'scrambling': 1.0, '..."
+      },
+      "error": null
+    },
+    "historical_odds_event_ids": {
+      "description": "Historical Odds Event IDs",
+      "success": true,
+      "response_type": "list",
+      "response": {
+        "list_length": 293,
+        "first_item_keys": [
+          "archived_preds",
+          "calendar_year",
+          "event_id",
+          "event_name",
+          "matchups",
+          "outrights"
+        ],
+        "sample_items": [
+          {
+            "archived_preds": "no",
+            "calendar_year": 2019,
+            "event_id": 2,
+            "event_name": "Desert Classic",
+            "matchups": "yes",
+            "outrights": "no"
+          },
+          {
+            "archived_preds": "yes",
+            "calendar_year": 2020,
+            "event_id": 2,
+            "event_name": "The American Express",
+            "matchups": "yes",
+            "outrights": "yes"
+          },
+          {
+            "archived_preds": "yes",
+            "calendar_year": 2021,
+            "event_id": 2,
+            "event_name": "The American Express",
+            "matchups": "yes",
+            "outrights": "yes"
+          }
+        ]
+      },
+      "error": null
+    },
+    "historical_outright_odds": {
+      "description": "Historical Outright Odds",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "book",
+          "event_completed",
+          "event_id",
+          "event_name",
+          "market",
+          "odds",
+          "season",
+          "year"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'book': 'draftkings', 'event_completed': '2025-06-15', 'event_id': '26', 'event_name': 'U.S. Open', 'market': 'win', 'odds': [{'bet_outcome_numeric': 0, 'bet_outcome_text': 'loss', 'close_odds': 3.75, 'close_time': '2025-06-11 21:57', 'dg_id': 18417, 'open_odds': 3.75, 'open_time': '2025-06-09 12:02', 'outcome': 'T7', 'player_name': 'Scheffler, Scottie'}, {'bet_outcome_numeric': 0, 'bet_outcome_text': 'loss', 'close_odds': 8.5, 'close_time': '2025-06-11 21:57', 'dg_id': 19841, 'open_odds': 10.0..."
+      },
+      "error": null
+    },
+    "historical_matchup_odds": {
+      "description": "Historical Matchup Odds",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "book",
+          "event_completed",
+          "event_id",
+          "event_name",
+          "odds",
+          "season",
+          "year"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'book': 'draftkings', 'event_completed': '2025-06-15', 'event_id': '26', 'event_name': 'U.S. Open', 'odds': [{'bet_type': 'R1 3-Ball', 'close_time': '2025-06-12 06:30', 'open_time': '2025-06-10 11:39', 'p1_close': 2.8, 'p1_dg_id': 13508, 'p1_open': 2.8, 'p1_outcome': 0.0, 'p1_outcome_text': 'loss', 'p1_player_name': 'Vegas, Jhonattan', 'p2_close': 2.4, 'p2_dg_id': 17543, 'p2_open': 2.4, 'p2_outcome': 0.0, 'p2_outcome_text': 'loss', 'p2_player_name': 'Kim, Michael', 'p3_close': 3.0, 'p3_dg_id': ..."
+      },
+      "error": null
+    },
+    "historical_dfs_event_ids": {
+      "description": "Historical DFS Event IDs",
+      "success": true,
+      "response_type": "list",
+      "response": {
+        "list_length": 677,
+        "first_item_keys": [
+          "calendar_year",
+          "date",
+          "dk_ownerships",
+          "dk_salaries",
+          "event_id",
+          "event_name",
+          "fd_ownerships",
+          "fd_salaries",
+          "tour"
+        ],
+        "sample_items": [
+          {
+            "calendar_year": 2025,
+            "date": "2025-06-15",
+            "dk_ownerships": "yes",
+            "dk_salaries": "yes",
+            "event_id": 26,
+            "event_name": "U.S. Open",
+            "fd_ownerships": "no",
+            "fd_salaries": "yes",
+            "tour": "pga"
+          },
+          {
+            "calendar_year": 2025,
+            "date": "2025-06-08",
+            "dk_ownerships": "no",
+            "dk_salaries": "yes",
+            "event_id": 2025118,
+            "event_name": "KLM Open",
+            "fd_ownerships": "no",
+            "fd_salaries": "no",
+            "tour": "euro"
+          },
+          {
+            "calendar_year": 2025,
+            "date": "2025-06-08",
+            "dk_ownerships": "yes",
+            "dk_salaries": "yes",
+            "event_id": 32,
+            "event_name": "RBC Canadian Open",
+            "fd_ownerships": "no",
+            "fd_salaries": "yes",
+            "tour": "pga"
+          }
+        ]
+      },
+      "error": null
+    },
+    "historical_dfs_points_salaries": {
+      "description": "Historical DFS Points & Salaries",
+      "success": true,
+      "response_type": "dict",
+      "response": {
+        "keys": [
+          "dfs_points",
+          "event_completed",
+          "event_id",
+          "event_name",
+          "ownerships_from",
+          "season",
+          "site",
+          "tour",
+          "year"
+        ],
+        "sample_truncated": true,
+        "first_few_chars": "{'dfs_points': [{'bogey_free_pts': 0, 'dg_id': 19195, 'fin_text': '1', 'finish_pts': 30, 'hole_in_one_pts': 0, 'hole_score_pts': 82.5, 'ownership': 0.1556, 'player_name': 'Rahm, Jon', 'salary': 10800, 'streak_pts': 0, 'sub_70_pts': 0, 'total_pts': 112.5}, {'bogey_free_pts': 0, 'dg_id': 14636, 'fin_text': 'T4', 'finish_pts': 16, 'hole_in_one_pts': 0, 'hole_score_pts': 75.5, 'ownership': 0.1827, 'player_name': 'Spieth, Jordan', 'salary': 9700, 'streak_pts': 6, 'sub_70_pts': 0, 'total_pts': 97.5}, ..."
+      },
+      "error": null
+    }
+  }
+}

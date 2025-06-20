@@ -27,6 +27,13 @@ class RequestHandler:
         url = f'{RequestHandler._url_base}{endpoint}?key={self._api_key}&' \
               + '&'.join([f'{k}={v}' for k, v in kwargs.items()])
         resp = requests.request("GET", url, headers={}, data={})
+        if resp.status_code == 400:
+            try:
+                error_data = json.loads(resp.text)
+                error_message = error_data.get('message', 'Bad request')
+                raise ValueError(f'API Error (400): {error_message}')
+            except json.JSONDecodeError:
+                raise ValueError(f'API Error (400): {resp.text}')
         if resp.status_code == 404:
             raise ValueError('Invalid url')  # TODO make exception classes
         if 'file_format=csv' in resp.request.url:
@@ -161,3 +168,147 @@ class RequestHandler:
             file_format (optional): json (default), csv
         """
         return self._make_request(endpoint='preds/live-hole-stats', **kwargs)
+    
+    def fantasy_projection_defaults(self, **kwargs):
+        """Returns default fantasy projections for various DFS contests.
+        
+        Args:
+            tour (optional): pga (default), euro, opp, alt
+            site (optional): draftkings (default), fanduel, yahoo
+            slate (optional): main (default), showdown, showdown_late, weekend, captain
+            file_format (optional): json (default), csv
+        """
+        return self._make_request(endpoint='preds/fantasy-projection-defaults', **kwargs)
+    
+    # Betting Tools
+    def outright_odds(self, **kwargs):
+        """Returns sportsbook odds comparison for tournament winners, top finishes, make cut.
+        
+        Args:
+            tour (optional): pga (default), euro, kft, opp, alt
+            market (required): win, top_5, top_10, top_20, mc, make_cut, frl
+            odds_format (optional): percent, american, decimal (default), fraction
+            file_format (optional): json (default), csv
+        """
+        kwargs.setdefault('market', 'win')
+        return self._make_request(endpoint='betting-tools/outrights', **kwargs)
+    
+    def matchup_odds(self, **kwargs):
+        """Returns tournament and round matchup odds from sportsbooks.
+        
+        Args:
+            tour (optional): pga (default), euro, opp, alt
+            market (required): tournament_matchups, round_matchups, 3_balls
+            odds_format (optional): percent, american, decimal (default), fraction
+            file_format (optional): json (default), csv
+        """
+        kwargs.setdefault('market', 'tournament_matchups')
+        return self._make_request(endpoint='betting-tools/matchups', **kwargs)
+    
+    def matchup_odds_all_pairings(self, **kwargs):
+        """Returns Data Golf generated matchup/3-ball odds for all possible pairings.
+        
+        Args:
+            tour (optional): pga (default), euro, opp, alt
+            odds_format (optional): percent, american, decimal (default), fraction
+            file_format (optional): json (default), csv
+        """
+        return self._make_request(endpoint='betting-tools/matchups-all-pairings', **kwargs)
+    
+    # Historical Raw Data
+    def historical_raw_data_event_ids(self, **kwargs):
+        """Returns event IDs for historical raw data across 22+ global tours.
+        
+        Args:
+            tour (optional): pga (default), euro, kft, liv, asian, japan, etc.
+            year (optional): Historical year for data retrieval
+            file_format (optional): json (default), csv
+        """
+        return self._make_request(endpoint='historical-raw-data/event-list', **kwargs)
+    
+    def historical_round_scoring_data(self, **kwargs):
+        """Returns detailed round-by-round scoring, traditional stats, and strokes gained data.
+        
+        Args:
+            tour (required): Tour specification
+            event_id (required): Event identifier from event list
+            year (required): Year filter
+            round (optional): Specific round number
+            file_format (optional): json (default), csv
+        """
+        kwargs.setdefault('tour', 'pga')
+        kwargs.setdefault('event_id', '14')
+        kwargs.setdefault('year', '2023')
+        return self._make_request(endpoint='historical-raw-data/rounds', **kwargs)
+    
+    # Historical Betting Odds
+    def historical_odds_event_ids(self, **kwargs):
+        """Returns event IDs for historical betting odds data.
+        
+        Args:
+            tour (optional): pga (default), euro, kft
+            year (optional): Historical year
+            file_format (optional): json (default), csv
+        """
+        return self._make_request(endpoint='historical-odds/event-list', **kwargs)
+    
+    def historical_outright_odds(self, **kwargs):
+        """Returns opening and closing lines for various betting markets.
+        
+        Args:
+            tour (optional): pga (default), euro, kft
+            event_id (optional): Specific tournament ID from event list
+            year (optional): Historical year
+            market (required): win, top_5, top_10, top_20, make_cut, frl
+            book (required): bet365, betcris, betfair, betway, bovada, draftkings, fanduel, pinnacle, skybet, sportsbook, unibet, williamhill
+            odds_format (optional): american (default), decimal, fraction
+            file_format (optional): json (default), csv
+        """
+        #kwargs.setdefault('event_id', '14')
+        kwargs.setdefault('market', 'win')
+        kwargs.setdefault('book', 'draftkings')
+        return self._make_request(endpoint='historical-odds/outrights', **kwargs)
+    
+    def historical_matchup_odds(self, **kwargs):
+        """Returns historical matchup and 3-ball betting odds.
+        
+        Args:
+            tour (optional): pga (default), euro, kft
+            event_id (required): Event identifier from event list
+            year (optional): Year specification
+            market (optional): tournament_matchups, round_matchups, 3_balls
+            book (required): bet365, betcris, betfair, betway, bovada, draftkings, fanduel, pinnacle, skybet, sportsbook, unibet, williamhill
+            odds_format (optional): american (default), decimal, fraction
+            file_format (optional): json (default), csv
+        """
+        #kwargs.setdefault('event_id', '14')
+        kwargs.setdefault('book', 'draftkings')
+        return self._make_request(endpoint='historical-odds/matchups', **kwargs)
+    
+    # Historical DFS Data
+    def historical_dfs_event_ids(self, **kwargs):
+        """Returns event IDs for historical DFS data.
+        
+        Args:
+            tour (optional): pga (default), euro, kft
+            site (optional): draftkings, fanduel, yahoo, superdraft
+            year (optional): Historical year
+            file_format (optional): json (default), csv
+        """
+        return self._make_request(endpoint='historical-dfs-data/event-list', **kwargs)
+    
+    def historical_dfs_points_salaries(self, **kwargs):
+        """Returns DFS points, salaries, and ownership percentages.
+        
+        Args:
+            tour (required): pga, euro, kft
+            site (optional): draftkings (default), fanduel, yahoo, superdraft
+            event_id (required): Tournament identifier from event list
+            year (required): Historical year
+            file_format (optional): json (default), csv
+        """
+        kwargs.setdefault('tour', 'pga')
+        kwargs.setdefault('site', 'draftkings')
+        kwargs.setdefault('event_id', '14')
+        kwargs.setdefault('year', '2023')
+        return self._make_request(endpoint='historical-dfs-data/points', **kwargs)

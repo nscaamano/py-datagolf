@@ -79,6 +79,65 @@ def live_hole_scoring_distributions(request_handler):
     return request_handler.live_hole_scoring_distributions()
 
 
+@pytest.fixture
+def fantasy_projection_defaults(request_handler):
+    return request_handler.fantasy_projection_defaults()
+
+
+@pytest.fixture
+def outright_odds(request_handler):
+    return request_handler.outright_odds()
+
+
+@pytest.fixture
+def matchup_odds(request_handler):
+    return request_handler.matchup_odds(market='tournament_matchups')
+
+
+@pytest.fixture
+def matchup_odds_all_pairings(request_handler):
+    return request_handler.matchup_odds_all_pairings()
+
+
+@pytest.fixture
+def historical_raw_data_event_ids(request_handler):
+    return request_handler.historical_raw_data_event_ids()
+
+
+@pytest.fixture
+def historical_round_scoring_data(request_handler):
+    # Use a known event_id - this might need to be updated based on available data
+    return request_handler.historical_round_scoring_data(event_id=14)
+
+
+@pytest.fixture
+def historical_odds_event_ids(request_handler):
+    return request_handler.historical_odds_event_ids()
+
+
+@pytest.fixture
+def historical_outright_odds(request_handler):
+    # Use a known event_id - this might need to be updated based on available data
+    return request_handler.historical_outright_odds(event_id=14)
+
+
+@pytest.fixture
+def historical_matchup_odds(request_handler):
+    # Use a known event_id - this might need to be updated based on available data
+    return request_handler.historical_matchup_odds(event_id=14)
+
+
+@pytest.fixture
+def historical_dfs_event_ids(request_handler):
+    return request_handler.historical_dfs_event_ids()
+
+
+@pytest.fixture
+def historical_dfs_points_salaries(request_handler):
+    # Use a known event_id and site - this might need to be updated based on available data
+    return request_handler.historical_dfs_points_salaries(site='draftkings', event_id=14)
+
+
 class TestDgAPIRequestBase:
 
     def test_player_list_type(self, player_list):
@@ -89,7 +148,7 @@ class TestDgAPIRequestBase:
         assert scottie == scottie_test
 
     def test_field_updates(self, field_updates):
-        assert sorted(['current_round', 'event_name', 'field','last_updated']) == sorted(list(field_updates.keys()))
+        assert sorted(['current_round', 'event_id', 'event_name', 'field','last_updated']) == sorted(list(field_updates.keys()))
 
     def test_tour_schedules(self, tour_schedules):
         assert sorted(['current_season', 'schedule', 'tour']) == sorted(list(tour_schedules.keys()))
@@ -128,3 +187,47 @@ class TestDgAPIRequestBase:
     def test_live_hole_scoring_distributions(self, live_hole_scoring_distributions):
         assert sorted(['event_name', 'last_update', 'current_round', 'courses']) \
             == sorted(list(live_hole_scoring_distributions.keys()))
+
+    def test_fantasy_projection_defaults(self, fantasy_projection_defaults):
+        assert sorted(['event_name', 'last_updated', 'note', 'projections', 'site', 'slate', 'tour']) == sorted(
+            list(fantasy_projection_defaults.keys()))
+
+    def test_outright_odds(self, outright_odds):
+        assert sorted(['books_offering', 'event_name', 'last_updated', 'market', 'notes', 'odds']) == sorted(
+            list(outright_odds.keys()))
+
+    def test_matchup_odds(self, matchup_odds):
+        assert sorted(['event_name', 'last_updated', 'market', 'match_list']) == sorted(
+            list(matchup_odds.keys()))
+
+    def test_matchup_odds_all_pairings(self, matchup_odds_all_pairings):
+        assert sorted(['event_name', 'last_update', 'pairings', 'round']) == sorted(
+            list(matchup_odds_all_pairings.keys()))
+
+    def test_historical_raw_data_event_ids(self, historical_raw_data_event_ids):
+        assert isinstance(historical_raw_data_event_ids, list)
+        # Should be a list of event IDs
+
+    def test_historical_round_scoring_data(self, historical_round_scoring_data):
+        assert sorted(['event_completed', 'event_id', 'event_name', 'scores', 'season', 'sg_categories', 'tour', 'traditional_stats', 'year']) == sorted(
+            list(historical_round_scoring_data.keys()))
+
+    def test_historical_odds_event_ids(self, historical_odds_event_ids):
+        assert isinstance(historical_odds_event_ids, list)
+        # Should be a list of event IDs
+
+    def test_historical_outright_odds(self, historical_outright_odds):
+        assert sorted(['book', 'event_completed', 'event_id', 'event_name', 'market', 'odds', 'season', 'year']) == sorted(
+            list(historical_outright_odds.keys()))
+
+    def test_historical_matchup_odds(self, historical_matchup_odds):
+        assert sorted(['book', 'event_completed', 'event_id', 'event_name', 'odds', 'season', 'year']) == sorted(
+            list(historical_matchup_odds.keys()))
+
+    def test_historical_dfs_event_ids(self, historical_dfs_event_ids):
+        assert isinstance(historical_dfs_event_ids, list)
+        # Should be a list of event IDs
+
+    def test_historical_dfs_points_salaries(self, historical_dfs_points_salaries):
+        assert sorted(['dfs_points', 'event_completed', 'event_id', 'event_name', 'ownerships_from', 'season', 'site', 'tour', 'year']) == sorted(
+            list(historical_dfs_points_salaries.keys()))
