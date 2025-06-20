@@ -110,20 +110,112 @@
   - `tour` (optional): `pga` (default), `euro`, `opp`, `kft`, `alt`
   - `file_format` (optional): `json` (default), `csv`
 
+#### Fantasy Projection Defaults
+- **Endpoint**: `preds/fantasy-projection-defaults`
+- **Description**: Default fantasy projections for various DFS contests
+- **Parameters**:
+  - `tour` (optional): `pga` (default), `euro`, `kft`, `opp`, `alt`
+  - `site` (optional): DFS site specific projections
+  - `slate` (optional): Contest slate type
+  - `file_format` (optional): `json` (default), `csv`
+
 ### 3. Betting Tools
 
 #### Outright Odds
 - **Endpoint**: `betting-tools/outrights`
-- **Description**: Sportsbook odds comparison for tournament winners
+- **Description**: Sportsbook odds comparison for tournament winners, top finishes, make cut
 - **Parameters**:
   - `tour` (optional): `pga` (default), `euro`, `kft`
-  - `market` (optional): Tournament winner markets
+  - `market` (optional): `win`, `top_5`, `top_10`, `top_20`, `make_cut`
   - `odds_format` (optional): `percent`, `american` (default), `decimal`, `fraction`
+  - `file_format` (optional): `json` (default), `csv`
 
-### 4. Historical Data Categories
-- Historical Raw Data
-- Historical Odds  
-- Historical DFS Data
+#### Match-Up & 3-Ball Odds
+- **Endpoint**: `betting-tools/matchups`
+- **Description**: Tournament and round matchup odds from sportsbooks
+- **Parameters**:
+  - `tour` (optional): `pga` (default), `euro`, `kft`
+  - `market` (optional): Tournament or round-specific matchups
+  - `odds_format` (optional): `percent`, `american` (default), `decimal`, `fraction`
+  - `file_format` (optional): `json` (default), `csv`
+
+#### Matchups All Pairings
+- **Endpoint**: `betting-tools/matchups-all-pairings`
+- **Description**: Data Golf generated matchup/3-ball odds for all possible pairings
+- **Parameters**:
+  - `tour` (optional): `pga` (default), `euro`, `kft`
+  - `odds_format` (optional): `percent` (default), `american`, `decimal`, `fraction`
+  - `file_format` (optional): `json` (default), `csv`
+
+### 4. Historical Raw Data
+
+#### Raw Data Archives
+- **Endpoint**: `historical-raw-data/event-list`
+- **Description**: Round-level scoring and traditional stats across 22+ global tours
+- **Parameters**:
+  - `tour` (optional): `pga` (default), `euro`, `kft`, `liv`, `asian`, `japan`, etc.
+  - `event_id` (optional): Specific tournament event ID
+  - `year` (optional): Historical year for data retrieval
+  - `file_format` (optional): `json` (default), `csv`
+
+#### Round Scoring Data
+- **Endpoint**: `historical-raw-data/rounds`
+- **Description**: Detailed round-by-round scoring data
+- **Parameters**:
+  - `tour` (optional): Tour specification
+  - `event_id` (optional): Event identifier
+  - `year` (optional): Year filter
+  - `round` (optional): Specific round number
+  - `file_format` (optional): `json` (default), `csv`
+
+### 5. Historical Betting Odds
+
+#### Historical Outright Odds
+- **Endpoint**: `historical-odds/outrights`
+- **Description**: Opening and closing lines for various betting markets
+- **Parameters**:
+  - `tour` (optional): `pga` (default), `euro`, `kft`
+  - `event_id` (optional): Specific tournament ID
+  - `year` (optional): Historical year
+  - `market` (optional): `win`, `top_5`, `top_10`, `top_20`, `make_cut`
+  - `book` (optional): Specific sportsbook
+  - `odds_format` (optional): `american` (default), `decimal`, `fraction`
+  - `file_format` (optional): `json` (default), `csv`
+
+#### Historical Matchup Odds
+- **Endpoint**: `historical-odds/matchups`
+- **Description**: Historical matchup and 3-ball betting odds
+- **Parameters**:
+  - `tour` (optional): Tour selection
+  - `event_id` (optional): Event identifier
+  - `year` (optional): Year specification
+  - `market` (optional): Matchup type
+  - `book` (optional): Sportsbook selection
+  - `odds_format` (optional): `american` (default), `decimal`, `fraction`
+  - `file_format` (optional): `json` (default), `csv`
+
+### 6. Historical DFS Data
+
+#### Historical DFS Salaries & Points
+- **Endpoint**: `historical-dfs-data/salaries-points`
+- **Description**: DFS points, salaries, and ownership percentages
+- **Parameters**:
+  - `tour` (optional): `pga` (default), `euro`, `kft`
+  - `site` (optional): `draftkings`, `fanduel`, `yahoo`, `superdraft`
+  - `event_id` (optional): Tournament identifier
+  - `year` (optional): Historical year
+  - `file_format` (optional): `json` (default), `csv`
+
+#### Historical Ownership Data
+- **Endpoint**: `historical-dfs-data/ownership`
+- **Description**: Player ownership percentages across DFS contests
+- **Parameters**:
+  - `tour` (optional): Tour specification
+  - `site` (optional): DFS platform
+  - `event_id` (optional): Event filter
+  - `year` (optional): Year selection
+  - `contest_type` (optional): Tournament, cash game, GPP
+  - `file_format` (optional): `json` (default), `csv`
 
 ## Common Parameters
 
