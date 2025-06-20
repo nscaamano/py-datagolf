@@ -152,6 +152,9 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
+# uv
+.uv_cache/
+
 # Misc
 secrets.json
 todo.txt

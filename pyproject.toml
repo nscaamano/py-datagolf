@@ -1,0 +1,46 @@
+[project]
+name = "py-datagolf"
+version = "0.1.0"
+description = "A Python wrapper around the Datagolf API."
+readme = "README.md"
+requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "nscaamano", email = "nscaamano@users.noreply.github.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests>=2.31.0",
+    "pydantic>=2.6.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/nscaamano/py-datagolf"
+Repository = "https://github.com/nscaamano/py-datagolf"
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=7.0.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["datagolf"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
