@@ -27,13 +27,13 @@ class RequestHandler:
         url = f'{RequestHandler._url_base}{endpoint}?key={self._api_key}&' \
               + '&'.join([f'{k}={v}' for k, v in kwargs.items()])
         resp = requests.request("GET", url, headers={}, data={})
-        if resp.status_code == 400:
+        if resp.status_code == 400 or resp.status_code == 403:
             try:
                 error_data = json.loads(resp.text)
                 error_message = error_data.get('message', 'Bad request')
-                raise ValueError(f'API Error (400): {error_message}')
+                raise ValueError(f'API Error ({resp.status_code}): {error_message}')
             except json.JSONDecodeError:
-                raise ValueError(f'API Error (400): {resp.text}')
+                raise ValueError(f'API Error ({resp.status_code}): {resp.text}')
         if resp.status_code == 404:
             raise ValueError('Invalid url')  # TODO make exception classes
         if 'file_format=csv' in resp.request.url:

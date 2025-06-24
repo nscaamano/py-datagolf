@@ -43,6 +43,7 @@ from .models import (
     FantasyProjectionModel,
     OutrightOddsModel,
     OutrightOddModel,
+    DataGolfOddsModel,
     MatchupOddsAllPairingsModel,
     MatchupPairingModel,
     PlayerPairingModel,
@@ -468,6 +469,9 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
+        
+        for odd in data['odds']:
+            odd['datagolf'] = DataGolfOddsModel(**odd['datagolf'])
         
         data['odds'] = DgAPI._filter_dg_objects(
             dg_objects=[OutrightOddModel(**odd) for odd in data['odds']],

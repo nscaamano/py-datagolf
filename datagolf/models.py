@@ -224,7 +224,7 @@ class BaselineHistoryFitPredictionArchiveModel(BaseModel):
 class PreTournamentPredictionsArchiveModel(BaseModel):
     baseline: List[BaselinePredictionArchiveModel]
     baseline_history_fit: List[BaselineHistoryFitPredictionArchiveModel]
-    event_completed: bool
+    event_completed: date
     event_id: str
     event_name: str
     models_available: List[str]
@@ -332,19 +332,19 @@ class LiveModelPredictionsModel(BaseModel):
 
 # Live Tournament Stats Models
 class LiveStatModel(BaseModel):
-    course: str
+    course: Optional[str]        # null for withdrawn players
     dg_id: int
     player_name: str
-    position: str
-    round: int
-    sg_app: float
-    sg_arg: float
-    sg_ott: float
-    sg_putt: float
-    sg_t2g: float
-    sg_total: float
-    thru: int
-    total: int
+    position: str                # Shows "WD" for withdrawn players
+    round: Optional[int]         # null for withdrawn players
+    sg_app: Optional[float]      # null for withdrawn players
+    sg_arg: Optional[float]      # null for withdrawn players
+    sg_ott: Optional[float]      # null for withdrawn players
+    sg_putt: Optional[float]     # null for withdrawn players
+    sg_t2g: Optional[float]      # null for withdrawn players
+    sg_total: Optional[float]    # null for withdrawn players
+    thru: Optional[int]          # null for withdrawn players
+    total: Optional[int]         # null for withdrawn players
     
     def __getitem__(self, item):
         return getattr(self, item)
@@ -355,7 +355,7 @@ class LiveStatModel(BaseModel):
 class LiveTournamentStatsModel(BaseModel):
     course_name: str
     event_name: str
-    last_updated: str
+    last_updated: str # TODO should these be timestamp type ?
     live_stats: List[LiveStatModel]
     stat_display: str
     stat_round: str
@@ -365,7 +365,7 @@ class FantasyProjectionModel(BaseModel):
     dg_id: int
     early_late_wave: int
     player_name: str
-    proj_ownership: float
+    proj_ownership: Optional[float]
     proj_points_finish: float
     proj_points_scoring: float
     proj_points_total: float
@@ -389,25 +389,55 @@ class FantasyProjectionDefaultsModel(BaseModel):
     tour: str
 
 # Betting Tools Models
+class DataGolfOddsModel(BaseModel):
+    """DataGolf's own odds predictions."""
+    baseline: Optional[float]
+    baseline_history_fit: Optional[float]
+
 class OutrightOddModel(BaseModel):
-    # Note: Odds structure varies significantly with different sportsbooks as keys
-    # This is a flexible model that can handle the dynamic structure
-    dg_id: Optional[int] = None
-    player_name: Optional[str] = None
-    # Additional fields will be dynamic based on sportsbooks available
+    """Individual player's odds across all sportsbooks."""
+    # Required fields that are always present
+    dg_id: int
+    player_name: str
+    datagolf: DataGolfOddsModel
+    
+    # Optional sportsbook fields - these vary by availability
+    bet365: Optional[float] = None
+    betcris: Optional[float] = None
+    betonline: Optional[float] = None
+    betmgm: Optional[float] = None
+    betway: Optional[float] = None
+    bovada: Optional[float] = None
+    caesars: Optional[float] = None
+    draftkings: Optional[float] = None
+    fanduel: Optional[float] = None
+    pinnacle: Optional[float] = None
+    skybet: Optional[float] = None
+    pointsbet: Optional[float] = None
+    williamhill: Optional[float] = None
+    unibet: Optional[float] = None
+    
+    # Allow additional unknown sportsbooks
+    class Config:
+        extra = 'allow'
     
     def __getitem__(self, item):
         return getattr(self, item)
     
     def __hash__(self):
-        return hash((self.dg_id, self.player_name)) if self.dg_id and self.player_name else hash(id(self))
+        return hash((self.dg_id, self.player_name))
+    
+    def get_sportsbook_odds(self) -> dict:
+        """Get all sportsbook odds as a dictionary, excluding DataGolf and player info."""
+        exclude_fields = {'dg_id', 'player_name', 'datagolf'}
+        return {k: v for k, v in self.__dict__.items() if k not in exclude_fields and v is not None}
 
 class OutrightOddsModel(BaseModel):
     books_offering: List[str]
     event_name: str
     last_updated: str
     market: str
-    notes: str
+    #notes: Optional[str] = None  # Sometimes missing
     odds: List[OutrightOddModel]
 
 class PlayerPairingModel(BaseModel):
