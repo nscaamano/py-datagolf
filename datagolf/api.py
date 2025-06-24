@@ -59,6 +59,8 @@ from .models import (
     HistoricalDfsEventModel,
     HistoricalDfsPointsSalariesModel,
     DfsPlayerPointsModel,
+    LeaderboardItemModel,
+    LeaderBoardModel,
 )
 
 
@@ -426,7 +428,7 @@ class DgAPI:
         return LiveModelPredictionsModel(**data)
     
     def get_live_tournament_stats(self, **kwargs) -> LiveTournamentStatsModel:
-        """Returns live strokes-gained and traditional stats."""
+        """Returns live strokes-gained and traditional stats for PGA Tour Events."""
         endpoint_fields = ('stats', 'round', 'display', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields}
@@ -645,13 +647,24 @@ class DgAPI:
         )
         return HistoricalDfsPointsSalariesModel(**data)
     
-    def get_leaderboard(self, size: int = 25, tour: str = 'pga', **kwargs) -> List[LiveStatModel]:
+    def get_leaderboard(self, size: int = 200, **kwargs) -> List[LeaderboardItemModel]:
         """Extract leaderboard from live tournament stats."""
-        stats_data = self.get_live_tournament_stats(tour=tour, **kwargs)
-        return stats_data.live_stats[:size]
+        stats_data = self.get_live_tournament_stats(**kwargs)
+        return LeaderBoardModel(
+            course_name=stats_data.course_name,
+            event_name=stats_data.event_name,
+            last_updated=stats_data.last_updated, 
+            items=[LeaderboardItemModel(
+                player_name=data.player_name,
+                dg_id=data.dg_id,
+                position=data.position,
+                thru=data.thru,
+                total=data.total
+            ) for data in stats_data.live_stats[:size]]
+        )
     
     def get_player_live_stats(self, player_id: int, **kwargs) -> Optional[LiveStatModel]:
-        """Extract specific player from live tournament stats."""
+        """Extract specific player from live tournament stats for the PGA tour."""
         stats_data = self.get_live_tournament_stats(**kwargs)
         for player in stats_data.live_stats:
             if player.dg_id == player_id:

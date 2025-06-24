@@ -650,3 +650,23 @@ class HistoricalDfsPointsSalariesModel(BaseModel):
     site: str
     tour: str
     year: int
+
+class LeaderboardItemModel(BaseModel):
+    """Individual leaderboard entry with essential player information."""
+    player_name: str
+    dg_id: int
+    position: str
+    thru: Optional[int]
+    total: Optional[int]
+    
+    def __getitem__(self, item):
+        return getattr(self, item)
+    
+    def __hash__(self):
+        return hash((self.dg_id, self.player_name))
+    
+class LeaderBoardModel(BaseModel):
+    course_name: str
+    event_name: str 
+    last_updated: str 
+    items: List[LeaderboardItemModel]

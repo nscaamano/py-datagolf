@@ -31,6 +31,8 @@ from datagolf.models import (
     HistoricalMatchupOddsModel,
     HistoricalDfsEventModel,
     HistoricalDfsPointsSalariesModel,
+    LeaderboardItemModel,
+    LeaderBoardModel,
 )
 
 
@@ -276,10 +278,10 @@ class TestDgAPI:
     # Convenience method tests
     def test_get_leaderboard(self, api):
         result = api.get_leaderboard(size=10)
-        assert isinstance(result, list)
-        assert len(result) <= 10
+        assert isinstance(result, LeaderBoardModel)
+        assert len(result.items) <= 10
         if result:
-            assert isinstance(result[0], LiveStatModel)
+            assert isinstance(result.items[0], LeaderboardItemModel)
     
     def test_get_player_live_stats(self, api):
         result = api.get_player_live_stats(player_id=18417)
