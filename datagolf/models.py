@@ -1,4 +1,4 @@
-from pydantic import BaseModel, confloat, conint, Field
+from pydantic import BaseModel, confloat, conint, Field, ConfigDict
 from datetime import date, datetime
 from typing import List, Optional, Union, Set
 
@@ -418,8 +418,7 @@ class OutrightOddModel(BaseModel):
     unibet: Optional[float] = None
     
     # Allow additional unknown sportsbooks
-    class Config:
-        extra = 'allow'
+    model_config = ConfigDict(extra='allow')
     
     def __getitem__(self, item):
         return getattr(self, item)

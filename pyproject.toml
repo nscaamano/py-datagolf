@@ -15,7 +15,7 @@ classifiers = [
 ]
 dependencies = [
     "requests>=2.31.0",
-    "pydantic>=2.6.4",
+    "pydantic>=2.11.7",
 ]
 
 [project.urls]
