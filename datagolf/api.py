@@ -20,6 +20,44 @@ from .models import (
     LiveHoleScoringRoundData,
     LiveHoleScoringHoleData,
     LiveHoleScoringWaveData,
+    # New models for API endpoints
+    DataGolfRankingsModel,
+    PlayerRankingModel,
+    PreTournamentPredictionsModel,
+    BaselinePredictionModel,
+    BaselineHistoryFitPredictionModel,
+    PreTournamentPredictionsArchiveModel,
+    BaselinePredictionArchiveModel,
+    BaselineHistoryFitPredictionArchiveModel,
+    PlayerSkillDecompositionsModel,
+    PlayerSkillDecompositionModel,
+    PlayerSkillRatingsModel,
+    PlayerSkillRatingModel,
+    DetailedApproachSkillModel,
+    ApproachSkillDataModel,
+    LiveModelPredictionsModel,
+    LivePredictionModel,
+    LiveTournamentStatsModel,
+    LiveStatModel,
+    FantasyProjectionDefaultsModel,
+    FantasyProjectionModel,
+    OutrightOddsModel,
+    OutrightOddModel,
+    MatchupOddsAllPairingsModel,
+    MatchupPairingModel,
+    PlayerPairingModel,
+    HistoricalRawDataEventModel,
+    HistoricalRoundScoringDataModel,
+    PlayerRoundScoreModel,
+    RoundStatsModel,
+    HistoricalOddsEventModel,
+    HistoricalOutrightOddsModel,
+    HistoricalOutrightOddModel,
+    HistoricalMatchupOddsModel,
+    HistoricalMatchupOddModel,
+    HistoricalDfsEventModel,
+    HistoricalDfsPointsSalariesModel,
+    DfsPlayerPointsModel,
 )
 
 
@@ -255,7 +293,7 @@ class DgAPI:
     
     def get_dg_rankings_amateurs(): pass
     
-    def get_data_golf_rankings(self, **kwargs) -> dict:
+    def get_data_golf_rankings(self, **kwargs) -> DataGolfRankingsModel:
         """Returns the top 500 players in the current DG rankings."""
         endpoint_fields = ('file_format',)
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -265,11 +303,14 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields and 'rankings' in data:
-            data['rankings'] = DgAPI._filter_dg_objects(dg_objects=data['rankings'], **filter_fields)
-        return data
+        
+        data['rankings'] = DgAPI._filter_dg_objects(
+            dg_objects=[PlayerRankingModel(**ranking) for ranking in data['rankings']],
+            **filter_fields
+        )
+        return DataGolfRankingsModel(**data)
     
-    def get_pre_tournament_predictions(self, **kwargs) -> dict:
+    def get_pre_tournament_predictions(self, **kwargs) -> PreTournamentPredictionsModel:
         """Returns full-field probabilistic forecasts for upcoming tournaments."""
         endpoint_fields = ('tour', 'add_position', 'odds_format', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -279,14 +320,20 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields:
-            if 'baseline' in data:
-                data['baseline'] = DgAPI._filter_dg_objects(dg_objects=data['baseline'], **filter_fields)
-            if 'baseline_history_fit' in data:
-                data['baseline_history_fit'] = DgAPI._filter_dg_objects(dg_objects=data['baseline_history_fit'], **filter_fields)
-        return data
+        
+        if 'baseline' in data:
+            data['baseline'] = DgAPI._filter_dg_objects(
+                dg_objects=[BaselinePredictionModel(**pred) for pred in data['baseline']],
+                **filter_fields
+            )
+        if 'baseline_history_fit' in data:
+            data['baseline_history_fit'] = DgAPI._filter_dg_objects(
+                dg_objects=[BaselineHistoryFitPredictionModel(**pred) for pred in data['baseline_history_fit']],
+                **filter_fields
+            )
+        return PreTournamentPredictionsModel(**data)
     
-    def get_pre_tournament_predictions_archive(self, **kwargs) -> dict:
+    def get_pre_tournament_predictions_archive(self, **kwargs) -> PreTournamentPredictionsArchiveModel:
         """Returns historical PGA Tour pre-tournament predictions."""
         endpoint_fields = ('event_id', 'year', 'odds_format', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -296,14 +343,20 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields:
-            if 'baseline' in data:
-                data['baseline'] = DgAPI._filter_dg_objects(dg_objects=data['baseline'], **filter_fields)
-            if 'baseline_history_fit' in data:
-                data['baseline_history_fit'] = DgAPI._filter_dg_objects(dg_objects=data['baseline_history_fit'], **filter_fields)
-        return data
+        
+        if 'baseline' in data:
+            data['baseline'] = DgAPI._filter_dg_objects(
+                dg_objects=[BaselinePredictionArchiveModel(**pred) for pred in data['baseline']],
+                **filter_fields
+            )
+        if 'baseline_history_fit' in data:
+            data['baseline_history_fit'] = DgAPI._filter_dg_objects(
+                dg_objects=[BaselineHistoryFitPredictionArchiveModel(**pred) for pred in data['baseline_history_fit']],
+                **filter_fields
+            )
+        return PreTournamentPredictionsArchiveModel(**data)
     
-    def get_player_skill_decompositions(self, **kwargs) -> dict:
+    def get_player_skill_decompositions(self, **kwargs) -> PlayerSkillDecompositionsModel:
         """Returns detailed strokes-gained breakdown for players."""
         endpoint_fields = ('tour', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -313,11 +366,14 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields and 'players' in data:
-            data['players'] = DgAPI._filter_dg_objects(dg_objects=data['players'], **filter_fields)
-        return data
+        
+        data['players'] = DgAPI._filter_dg_objects(
+            dg_objects=[PlayerSkillDecompositionModel(**player) for player in data['players']],
+            **filter_fields
+        )
+        return PlayerSkillDecompositionsModel(**data)
     
-    def get_player_skill_ratings(self, **kwargs) -> dict:
+    def get_player_skill_ratings(self, **kwargs) -> PlayerSkillRatingsModel:
         """Returns skill estimates and ranks for all players."""
         endpoint_fields = ('display', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -327,11 +383,14 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields and 'players' in data:
-            data['players'] = DgAPI._filter_dg_objects(dg_objects=data['players'], **filter_fields)
-        return data
+        
+        data['players'] = DgAPI._filter_dg_objects(
+            dg_objects=[PlayerSkillRatingModel(**player) for player in data['players']],
+            **filter_fields
+        )
+        return PlayerSkillRatingsModel(**data)
     
-    def get_detailed_approach_skill(self, **kwargs) -> dict:
+    def get_detailed_approach_skill(self, **kwargs) -> DetailedApproachSkillModel:
         """Returns detailed approach performance stats by yardage/lie buckets."""
         endpoint_fields = ('period', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -341,11 +400,14 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields and 'data' in data:
-            data['data'] = DgAPI._filter_dg_objects(dg_objects=data['data'], **filter_fields)
-        return data
+        
+        data['data'] = DgAPI._filter_dg_objects(
+            dg_objects=[ApproachSkillDataModel(**item) for item in data['data']],
+            **filter_fields
+        )
+        return DetailedApproachSkillModel(**data)
     
-    def get_live_model_predictions(self, **kwargs) -> dict:
+    def get_live_model_predictions(self, **kwargs) -> LiveModelPredictionsModel:
         """Returns live finish probabilities for ongoing tournaments."""
         endpoint_fields = ('tour', 'dead_heat', 'odds_format', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -355,11 +417,14 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields and 'data' in data:
-            data['data'] = DgAPI._filter_dg_objects(dg_objects=data['data'], **filter_fields)
-        return data
+        
+        data['data'] = DgAPI._filter_dg_objects(
+            dg_objects=[LivePredictionModel(**pred) for pred in data['data']],
+            **filter_fields
+        )
+        return LiveModelPredictionsModel(**data)
     
-    def get_live_tournament_stats(self, **kwargs) -> dict:
+    def get_live_tournament_stats(self, **kwargs) -> LiveTournamentStatsModel:
         """Returns live strokes-gained and traditional stats."""
         endpoint_fields = ('stats', 'round', 'display', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -369,11 +434,14 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields and 'live_stats' in data:
-            data['live_stats'] = DgAPI._filter_dg_objects(dg_objects=data['live_stats'], **filter_fields)
-        return data
+        
+        data['live_stats'] = DgAPI._filter_dg_objects(
+            dg_objects=[LiveStatModel(**stat) for stat in data['live_stats']],
+            **filter_fields
+        )
+        return LiveTournamentStatsModel(**data)
     
-    def get_fantasy_projection_defaults(self, **kwargs) -> dict:
+    def get_fantasy_projection_defaults(self, **kwargs) -> FantasyProjectionDefaultsModel:
         """Returns default fantasy projections for DFS contests."""
         endpoint_fields = ('tour', 'site', 'slate', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -383,11 +451,14 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
-        if filter_fields and 'projections' in data:
-            data['projections'] = DgAPI._filter_dg_objects(dg_objects=data['projections'], **filter_fields)
-        return data
+        
+        data['projections'] = DgAPI._filter_dg_objects(
+            dg_objects=[FantasyProjectionModel(**proj) for proj in data['projections']],
+            **filter_fields
+        )
+        return FantasyProjectionDefaultsModel(**data)
     
-    def get_outright_odds(self, **kwargs) -> List[dict]:
+    def get_outright_odds(self, **kwargs) -> OutrightOddsModel:
         """Returns sportsbook odds comparison for tournament winners and finishes."""
         endpoint_fields = ('tour', 'market', 'odds_format', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -396,12 +467,15 @@ class DgAPI:
         endpoint = self._request.outright_odds
         self._check_cache(endpoint, **kwargs)
         
-        data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        data = copy.deepcopy(self._cache[endpoint.__name__])
+        
+        data['odds'] = DgAPI._filter_dg_objects(
+            dg_objects=[OutrightOddModel(**odd) for odd in data['odds']],
+            **filter_fields
+        )
+        return OutrightOddsModel(**data)
     
-    def get_matchup_odds(self, **kwargs) -> List[dict]:
+    def get_matchup_odds(self, **kwargs) -> dict:
         """Returns tournament and round matchup odds from sportsbooks."""
         endpoint_fields = ('tour', 'market', 'odds_format', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -410,12 +484,11 @@ class DgAPI:
         endpoint = self._request.matchup_odds
         self._check_cache(endpoint, **kwargs)
         
+        # Note: matchup_odds returns variable structure, sometimes just string message
         data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
         return data
     
-    def get_matchup_odds_all_pairings(self, **kwargs) -> List[dict]:
+    def get_matchup_odds_all_pairings(self, **kwargs) -> MatchupOddsAllPairingsModel:
         """Returns Data Golf generated matchup odds for all possible pairings."""
         endpoint_fields = ('tour', 'odds_format', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -424,12 +497,24 @@ class DgAPI:
         endpoint = self._request.matchup_odds_all_pairings
         self._check_cache(endpoint, **kwargs)
         
-        data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        data = copy.deepcopy(self._cache[endpoint.__name__])
+        
+        pairings = []
+        for pairing in data['pairings']:
+            pairings.append(MatchupPairingModel(
+                course=pairing['course'],
+                group=pairing['group'],
+                p1=PlayerPairingModel(**pairing['p1']),
+                p2=PlayerPairingModel(**pairing['p2']),
+                p3=PlayerPairingModel(**pairing['p3']),
+                start_hole=pairing['start_hole'],
+                teetime=pairing['teetime']
+            ))
+        
+        data['pairings'] = DgAPI._filter_dg_objects(dg_objects=pairings, **filter_fields)
+        return MatchupOddsAllPairingsModel(**data)
     
-    def get_historical_raw_data_event_ids(self, **kwargs) -> List[dict]:
+    def get_historical_raw_data_event_ids(self, **kwargs) -> List[HistoricalRawDataEventModel]:
         """Returns event IDs for historical raw data across tours."""
         endpoint_fields = ('tour', 'year', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -439,11 +524,12 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        return DgAPI._filter_dg_objects(
+            dg_objects=[HistoricalRawDataEventModel(**event) for event in data],
+            **filter_fields
+        )
     
-    def get_historical_round_scoring_data(self, **kwargs) -> List[dict]:
+    def get_historical_round_scoring_data(self, **kwargs) -> HistoricalRoundScoringDataModel:
         """Returns detailed round-by-round scoring and strokes gained data."""
         endpoint_fields = ('tour', 'event_id', 'year', 'round', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -452,12 +538,29 @@ class DgAPI:
         endpoint = self._request.historical_round_scoring_data
         self._check_cache(endpoint, **kwargs)
         
-        data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        data = copy.deepcopy(self._cache[endpoint.__name__])
+        
+        # Process scores with round data
+        scores = []
+        for score in data['scores']:
+            round_data = {}
+            for round_key in ['round_1', 'round_2', 'round_3', 'round_4']:
+                if round_key in score and score[round_key]:
+                    round_data[round_key] = RoundStatsModel(**score[round_key])
+                else:
+                    round_data[round_key] = None
+            
+            scores.append(PlayerRoundScoreModel(
+                dg_id=score['dg_id'],
+                fin_text=score['fin_text'],
+                player_name=score['player_name'],
+                **round_data
+            ))
+        
+        data['scores'] = DgAPI._filter_dg_objects(dg_objects=scores, **filter_fields)
+        return HistoricalRoundScoringDataModel(**data)
     
-    def get_historical_odds_event_ids(self, **kwargs) -> List[dict]:
+    def get_historical_odds_event_ids(self, **kwargs) -> List[HistoricalOddsEventModel]:
         """Returns event IDs for historical betting odds data."""
         endpoint_fields = ('tour', 'year', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -467,11 +570,12 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        return DgAPI._filter_dg_objects(
+            dg_objects=[HistoricalOddsEventModel(**event) for event in data],
+            **filter_fields
+        )
     
-    def get_historical_outright_odds(self, **kwargs) -> List[dict]:
+    def get_historical_outright_odds(self, **kwargs) -> HistoricalOutrightOddsModel:
         """Returns opening and closing lines for various betting markets."""
         endpoint_fields = ('tour', 'event_id', 'year', 'market', 'book', 'odds_format', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -480,12 +584,15 @@ class DgAPI:
         endpoint = self._request.historical_outright_odds
         self._check_cache(endpoint, **kwargs)
         
-        data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        data = copy.deepcopy(self._cache[endpoint.__name__])
+        
+        data['odds'] = DgAPI._filter_dg_objects(
+            dg_objects=[HistoricalOutrightOddModel(**odd) for odd in data['odds']],
+            **filter_fields
+        )
+        return HistoricalOutrightOddsModel(**data)
     
-    def get_historical_matchup_odds(self, **kwargs) -> List[dict]:
+    def get_historical_matchup_odds(self, **kwargs) -> HistoricalMatchupOddsModel:
         """Returns historical matchup and 3-ball betting odds."""
         endpoint_fields = ('tour', 'event_id', 'year', 'market', 'book', 'odds_format', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -494,12 +601,15 @@ class DgAPI:
         endpoint = self._request.historical_matchup_odds
         self._check_cache(endpoint, **kwargs)
         
-        data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        data = copy.deepcopy(self._cache[endpoint.__name__])
+        
+        data['odds'] = DgAPI._filter_dg_objects(
+            dg_objects=[HistoricalMatchupOddModel(**odd) for odd in data['odds']],
+            **filter_fields
+        )
+        return HistoricalMatchupOddsModel(**data)
     
-    def get_historical_dfs_event_ids(self, **kwargs) -> List[dict]:
+    def get_historical_dfs_event_ids(self, **kwargs) -> List[HistoricalDfsEventModel]:
         """Returns event IDs for historical DFS data."""
         endpoint_fields = ('tour', 'site', 'year', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -509,11 +619,12 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        return DgAPI._filter_dg_objects(
+            dg_objects=[HistoricalDfsEventModel(**event) for event in data],
+            **filter_fields
+        )
     
-    def get_historical_dfs_points_salaries(self, **kwargs) -> List[dict]:
+    def get_historical_dfs_points_salaries(self, **kwargs) -> HistoricalDfsPointsSalariesModel:
         """Returns DFS points, salaries, and ownership percentages."""
         endpoint_fields = ('tour', 'site', 'event_id', 'year', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
@@ -522,44 +633,41 @@ class DgAPI:
         endpoint = self._request.historical_dfs_points_salaries
         self._check_cache(endpoint, **kwargs)
         
-        data = self._cache[endpoint.__name__]
-        if filter_fields:
-            return DgAPI._filter_dg_objects(dg_objects=data, **filter_fields)
-        return data
+        data = copy.deepcopy(self._cache[endpoint.__name__])
+        
+        data['dfs_points'] = DgAPI._filter_dg_objects(
+            dg_objects=[DfsPlayerPointsModel(**points) for points in data['dfs_points']],
+            **filter_fields
+        )
+        return HistoricalDfsPointsSalariesModel(**data)
     
-    def get_leaderboard(self, size: int = 25, tour: str = 'pga', **kwargs) -> List[dict]:
+    def get_leaderboard(self, size: int = 25, tour: str = 'pga', **kwargs) -> List[LiveStatModel]:
         """Extract leaderboard from live tournament stats."""
         stats_data = self.get_live_tournament_stats(tour=tour, **kwargs)
-        if isinstance(stats_data, dict) and 'live_stats' in stats_data:
-            return stats_data['live_stats'][:size]
-        return []
+        return stats_data.live_stats[:size]
     
-    def get_player_live_stats(self, player_id: int, **kwargs) -> dict:
+    def get_player_live_stats(self, player_id: int, **kwargs) -> Optional[LiveStatModel]:
         """Extract specific player from live tournament stats."""
         stats_data = self.get_live_tournament_stats(**kwargs)
-        if isinstance(stats_data, dict) and 'live_stats' in stats_data:
-            for player in stats_data['live_stats']:
-                if player.get('dg_id') == player_id or player.get('player_id') == player_id:
-                    return player
-        return {}
+        for player in stats_data.live_stats:
+            if player.dg_id == player_id:
+                return player
+        return None
     
-    def get_player_live_score(self, player_id: int, **kwargs) -> dict:
+    def get_player_live_score(self, player_id: int, **kwargs) -> Optional[Dict[str, Union[str, int, float]]]:
         """Extract player position/score from live model predictions."""
         predictions_data = self.get_live_model_predictions(**kwargs)
-        if isinstance(predictions_data, dict) and 'data' in predictions_data:
-            for player in predictions_data['data']:
-                if player.get('dg_id') == player_id or player.get('player_id') == player_id:
-                    return {
-                        'position': player.get('current_pos'),
-                        'score': player.get('current_score'),
-                        'player_name': player.get('player_name'),
-                        'win_prob': player.get('win')
-                    }
-        return {}
+        for player in predictions_data.data:
+            if player.dg_id == player_id:
+                return {
+                    'position': player.current_pos,
+                    'score': player.current_score,
+                    'player_name': player.player_name,
+                    'win_prob': player.win
+                }
+        return None
     
-    def get_dg_rankings_amateurs(self, **kwargs) -> List[dict]:
+    def get_dg_rankings_amateurs(self, **kwargs) -> List[PlayerRankingModel]:
         """Filter amateur players from data golf rankings."""
         rankings_data = self.get_data_golf_rankings(**kwargs)
-        if isinstance(rankings_data, dict) and 'rankings' in rankings_data:
-            return [player for player in rankings_data['rankings'] if player.get('am') == 1]
-        return []
+        return [player for player in rankings_data.rankings if player.am == 1]
