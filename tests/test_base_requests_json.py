@@ -193,7 +193,7 @@ class TestDgAPIRequestBase:
             list(fantasy_projection_defaults.keys()))
 
     def test_outright_odds(self, outright_odds):
-        assert sorted(['books_offering', 'event_name', 'last_updated', 'market', 'notes', 'odds']) == sorted(
+        assert sorted(['books_offering', 'event_name', 'last_updated', 'market', 'odds']) == sorted(
             list(outright_odds.keys()))
 
     def test_matchup_odds(self, matchup_odds):

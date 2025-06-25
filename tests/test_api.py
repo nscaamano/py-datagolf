@@ -235,9 +235,9 @@ class TestDgAPI:
     
     def test_get_historical_raw_data_event_ids(self, api):
         result = api.get_historical_raw_data_event_ids()
-        assert isinstance(result, list)
+        assert isinstance(result, set)
         if result:
-            assert isinstance(result[0], HistoricalRawDataEventModel)
+            assert isinstance(next(iter(result)), HistoricalRawDataEventModel)
     
     def test_get_historical_round_scoring_data(self, api):
         result = api.get_historical_round_scoring_data()
@@ -247,9 +247,9 @@ class TestDgAPI:
     
     def test_get_historical_odds_event_ids(self, api):
         result = api.get_historical_odds_event_ids()
-        assert isinstance(result, list)
+        assert isinstance(result, set)
         if result:
-            assert isinstance(result[0], HistoricalOddsEventModel)
+            assert isinstance(next(iter(result)), HistoricalOddsEventModel)
     
     def test_get_historical_outright_odds(self, api):
         result = api.get_historical_outright_odds()
@@ -265,9 +265,9 @@ class TestDgAPI:
     
     def test_get_historical_dfs_event_ids(self, api):
         result = api.get_historical_dfs_event_ids()
-        assert isinstance(result, list)
+        assert isinstance(result, set)
         if result:
-            assert isinstance(result[0], HistoricalDfsEventModel)
+            assert isinstance(next(iter(result)), HistoricalDfsEventModel)
     
     def test_get_historical_dfs_points_salaries(self, api):
         result = api.get_historical_dfs_points_salaries()
@@ -364,10 +364,10 @@ class TestDgAPIErrorHandling:
     
     def test_leaderboard_size_limits(self, api):
         """Test leaderboard respects size parameter."""
-        small_board = api.get_leaderboard(size=5)
-        large_board = api.get_leaderboard(size=50)
+        small_leaderboard = api.get_leaderboard(size=5)
+        large_leaderboard = api.get_leaderboard(size=50)
         
-        assert len(small_board) <= 5
-        assert len(large_board) <= 50
-        assert isinstance(small_board, list)
-        assert isinstance(large_board, list)
+        assert len(small_leaderboard.items) <= 5
+        assert len(large_leaderboard.items) <= 50
+        assert isinstance(small_leaderboard.items, list)
+        assert isinstance(large_leaderboard.items, list)

@@ -139,10 +139,10 @@ class DgAPI:
     def _filter_dg_objects(
         dg_objects: list, 
         **filter_fields
-    ) -> list[dict]:
+    ) -> set[dict]:
         
         if not filter_fields:
-            return dg_objects
+            return set(dg_objects)
         
         # fails if non int string is passed to a field which expects an int 
         # some event ids can be int or string; maybe convert all event_ids to int before passing here. 
@@ -187,7 +187,7 @@ class DgAPI:
     def get_players(
         self,      
         **kwargs
-    ) -> set:
+    ) -> set[PlayerModel]:
         # TODO all endpoint use file_format, no need to specify here. 
         endpoint_fields = ('file_format')
         
