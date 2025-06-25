@@ -97,6 +97,11 @@ class DgAPI:
     
     
     @staticmethod
+    def _get_valid_model_fields(model_class) -> set:
+        """Get valid field names for a Pydantic model."""
+        return set(model_class.model_fields.keys())
+    
+    @staticmethod
     def _separate_filter_fields_by_type(data: Dict[str, Union[int, str, List[Union[int, str]]]]) -> Dict[str, Dict[str, Any]]:
         
         int_fields = {}
@@ -182,7 +187,7 @@ class DgAPI:
     def get_players(
         self,      
         **kwargs
-    ) -> List[PlayerModel]:
+    ) -> set:
         # TODO all endpoint use file_format, no need to specify here. 
         endpoint_fields = ('file_format')
         
@@ -190,13 +195,20 @@ class DgAPI:
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
         
+        # Filter out invalid field names to handle gracefully
+        valid_fields = self._get_valid_model_fields(PlayerModel)
+        filter_fields = {k: v for k, v in filter_fields.items() if k in valid_fields}
+        
         endpoint = self._request.player_list
         self._check_cache(endpoint, **kwargs)     
         
-        return DgAPI._filter_dg_objects(
-            dg_objects=[PlayerModel(**player) for player in self._cache[endpoint.__name__]], 
-            **filter_fields
-        )
+        player_models = [PlayerModel(**player) for player in self._cache[endpoint.__name__]]
+        
+        # If no filter fields remain after validation, return all players as a set
+        if not filter_fields:
+            return set(player_models)
+        
+        return DgAPI._filter_dg_objects(dg_objects=player_models, **filter_fields)
     
     # TODO decorator to parse kwargs and assign endpoint fields based on lookup 
     # keep in mind nested lists need deep copy from cache
