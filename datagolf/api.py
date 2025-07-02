@@ -33,6 +33,10 @@ class DgAPI:
         #  TODO refesh endpoints in cache ? 
         pass 
     
+    def verify_credentials(self):
+        # TODO 
+        pass
+    
     def _check_cache(self, endpoint_func, **kwargs):
         endpoint_name = endpoint_func.__name__
         if not self._cache.get(endpoint_name):
