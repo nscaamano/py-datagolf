@@ -12,7 +12,7 @@ from .request import RequestHandler
 from .models import *
 
 
-class DgAPI:
+class Api:
     """TODO add docs
     """
     
@@ -41,10 +41,10 @@ class DgAPI:
         endpoint_name = endpoint_func.__name__
         if not self._cache.get(endpoint_name):
             self._cache[endpoint_name] = endpoint_func(**kwargs) 
-            self._cache[DgAPI._cache_refesh_key] = datetime.now()
+            self._cache[Api._cache_refesh_key] = datetime.now()
         
-        if self._cache.get(DgAPI._cache_refesh_key) and (
-            (datetime.now() - self._cache.get(DgAPI._cache_refesh_key)) > timedelta(minutes=self.cache_interval)
+        if self._cache.get(Api._cache_refesh_key) and (
+            (datetime.now() - self._cache.get(Api._cache_refesh_key)) > timedelta(minutes=self.cache_interval)
         ): self._cache[endpoint_name] = endpoint_func(**kwargs) 
     
     
@@ -99,7 +99,7 @@ class DgAPI:
         # fails if non int string is passed to a field which expects an int 
         # some event ids can be int or string; maybe convert all event_ids to int before passing here. 
         
-        separated_filters = DgAPI._separate_filter_fields_by_type(filter_fields)
+        separated_filters = Api._separate_filter_fields_by_type(filter_fields)
         
         def match_int(dg_object, misc_field: tuple):
             key = misc_field[0]
@@ -160,7 +160,7 @@ class DgAPI:
         if not filter_fields:
             return set(player_models)
         
-        return DgAPI._filter_dg_objects(dg_objects=player_models, **filter_fields)
+        return Api._filter_dg_objects(dg_objects=player_models, **filter_fields)
     
     # TODO  to parse kwargs and assign endpoint fields based on lookup 
     # keep in mind nested lists need deep copy from cache
@@ -168,7 +168,7 @@ class DgAPI:
         self,
         **kwargs
     ) -> PlayerFieldUpdates:
-        endpoint_fields = DgAPI._base_endpoint_params
+        endpoint_fields = Api._base_endpoint_params
         
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
@@ -178,7 +178,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['field'] = DgAPI._filter_dg_objects(
+        data['field'] = Api._filter_dg_objects(
             dg_objects=[PlayerFieldUpdate(**update) for update in data['field']], 
             **filter_fields
         )
@@ -199,7 +199,7 @@ class DgAPI:
         self,
         **kwargs
     ) -> TourSchedules: 
-        endpoint_fields = DgAPI._base_endpoint_params
+        endpoint_fields = Api._base_endpoint_params
     
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
@@ -210,7 +210,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])      
 
-        data['schedule'] = DgAPI._filter_dg_objects(
+        data['schedule'] = Api._filter_dg_objects(
             dg_objects=[Event(**event) for event in data['schedule']], 
             **filter_fields
         )
@@ -227,7 +227,7 @@ class DgAPI:
                 i think endpoint can return more than one course
         """
         
-        endpoint_fields = DgAPI._base_endpoint_params
+        endpoint_fields = Api._base_endpoint_params
         
         endpoint = self._request.live_hole_scoring_distributions 
         self._check_cache(endpoint, **kwargs)
@@ -271,7 +271,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['rankings'] = DgAPI._filter_dg_objects(
+        data['rankings'] = Api._filter_dg_objects(
             dg_objects=[PlayerRanking(**ranking) for ranking in data['rankings']],
             **filter_fields
         )
@@ -289,12 +289,12 @@ class DgAPI:
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
         if 'baseline' in data:
-            data['baseline'] = DgAPI._filter_dg_objects(
+            data['baseline'] = Api._filter_dg_objects(
                 dg_objects=[BaselinePrediction(**pred) for pred in data['baseline']],
                 **filter_fields
             )
         if 'baseline_history_fit' in data:
-            data['baseline_history_fit'] = DgAPI._filter_dg_objects(
+            data['baseline_history_fit'] = Api._filter_dg_objects(
                 dg_objects=[BaselineHistoryFitPrediction(**pred) for pred in data['baseline_history_fit']],
                 **filter_fields
             )
@@ -312,12 +312,12 @@ class DgAPI:
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
         if 'baseline' in data:
-            data['baseline'] = DgAPI._filter_dg_objects(
+            data['baseline'] = Api._filter_dg_objects(
                 dg_objects=[BaselinePredictionArchive(**pred) for pred in data['baseline']],
                 **filter_fields
             )
         if 'baseline_history_fit' in data:
-            data['baseline_history_fit'] = DgAPI._filter_dg_objects(
+            data['baseline_history_fit'] = Api._filter_dg_objects(
                 dg_objects=[BaselineHistoryFitPredictionArchive(**pred) for pred in data['baseline_history_fit']],
                 **filter_fields
             )
@@ -334,7 +334,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['players'] = DgAPI._filter_dg_objects(
+        data['players'] = Api._filter_dg_objects(
             dg_objects=[PlayerSkillDecomposition(**player) for player in data['players']],
             **filter_fields
         )
@@ -351,7 +351,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['players'] = DgAPI._filter_dg_objects(
+        data['players'] = Api._filter_dg_objects(
             dg_objects=[PlayerSkillRating(**player) for player in data['players']],
             **filter_fields
         )
@@ -368,7 +368,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['data'] = DgAPI._filter_dg_objects(
+        data['data'] = Api._filter_dg_objects(
             dg_objects=[ApproachSkillData(**item) for item in data['data']],
             **filter_fields
         )
@@ -385,7 +385,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['data'] = DgAPI._filter_dg_objects(
+        data['data'] = Api._filter_dg_objects(
             dg_objects=[LivePrediction(**pred) for pred in data['data']],
             **filter_fields
         )
@@ -402,7 +402,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['live_stats'] = DgAPI._filter_dg_objects(
+        data['live_stats'] = Api._filter_dg_objects(
             dg_objects=[LiveStat(**stat) for stat in data['live_stats']],
             **filter_fields
         )
@@ -419,7 +419,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['projections'] = DgAPI._filter_dg_objects(
+        data['projections'] = Api._filter_dg_objects(
             dg_objects=[FantasyProjection(**proj) for proj in data['projections']],
             **filter_fields
         )
@@ -439,7 +439,7 @@ class DgAPI:
         for odd in data['odds']:
             odd['datagolf'] = DataGolfOdds(**odd['datagolf'])
         
-        data['odds'] = DgAPI._filter_dg_objects(
+        data['odds'] = Api._filter_dg_objects(
             dg_objects=[OutrightOdd(**odd) for odd in data['odds']],
             **filter_fields
         )
@@ -481,7 +481,7 @@ class DgAPI:
                 teetime=pairing['teetime']
             ))
         
-        data['pairings'] = DgAPI._filter_dg_objects(dg_objects=pairings, **filter_fields)
+        data['pairings'] = Api._filter_dg_objects(dg_objects=pairings, **filter_fields)
         return MatchupOddsAllPairings(**data)
     
     def get_historical_raw_data_event_ids(self, **kwargs) -> List[HistoricalRawDataEvent]:
@@ -494,7 +494,7 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = self._cache[endpoint.__name__]
-        return DgAPI._filter_dg_objects(
+        return Api._filter_dg_objects(
             dg_objects=[HistoricalRawDataEvent(**event) for event in data],
             **filter_fields
         )
@@ -527,7 +527,7 @@ class DgAPI:
                 **round_data
             ))
         
-        data['scores'] = DgAPI._filter_dg_objects(dg_objects=scores, **filter_fields)
+        data['scores'] = Api._filter_dg_objects(dg_objects=scores, **filter_fields)
         return HistoricalRoundScoringData(**data)
     
     def get_historical_odds_event_ids(self, **kwargs) -> List[HistoricalOddsEvent]:
@@ -540,7 +540,7 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = self._cache[endpoint.__name__]
-        return DgAPI._filter_dg_objects(
+        return Api._filter_dg_objects(
             dg_objects=[HistoricalOddsEvent(**event) for event in data],
             **filter_fields
         )
@@ -556,7 +556,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['odds'] = DgAPI._filter_dg_objects(
+        data['odds'] = Api._filter_dg_objects(
             dg_objects=[HistoricalOutrightOdd(**odd) for odd in data['odds']],
             **filter_fields
         )
@@ -573,7 +573,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['odds'] = DgAPI._filter_dg_objects(
+        data['odds'] = Api._filter_dg_objects(
             dg_objects=[HistoricalMatchupOdd(**odd) for odd in data['odds']],
             **filter_fields
         )
@@ -589,7 +589,7 @@ class DgAPI:
         self._check_cache(endpoint, **kwargs)
         
         data = self._cache[endpoint.__name__]
-        return DgAPI._filter_dg_objects(
+        return Api._filter_dg_objects(
             dg_objects=[HistoricalDfsEvent(**event) for event in data],
             **filter_fields
         )
@@ -605,7 +605,7 @@ class DgAPI:
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['dfs_points'] = DgAPI._filter_dg_objects(
+        data['dfs_points'] = Api._filter_dg_objects(
             dg_objects=[DfsPlayerPoints(**points) for points in data['dfs_points']],
             **filter_fields
         )

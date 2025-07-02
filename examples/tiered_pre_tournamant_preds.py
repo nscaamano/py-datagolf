@@ -1,4 +1,4 @@
-from datagolf.api import DgAPI
+from datagolf.api import Api
 #from lookups.pga_champ_2024 import TIERS
 from lookups.us_open_2024 import TIERS
 from datagolf.models import PreTournamentPredModel
@@ -13,7 +13,7 @@ TOURNAMENT_PREFIX = 'usopen'
 
 
 if __name__ == '__main__':
-    api = DgAPI()
+    api = Api()
     
     preds = api._request.pre_tournament_predictions()  # TODO replace with api once supported
     output = {}

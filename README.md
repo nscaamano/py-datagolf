@@ -21,11 +21,11 @@ This library uses models to verify and represent the various structures returned
 More to come...
 
 ## Usage 
-Primary usage will involve the datagolf.api DgAPI class. Authentication is simple by providing an api key as a parameter to the query string for each request; this key can be provided in object initlization for the DgAPI class as well as the base request class; the key is obtained from https://datagolf.com/api-access. 
+Primary usage will involve the datagolf.api Api class. Authentication is simple by providing an api key as a parameter to the query string for each request; this key can be provided in object initlization for the Api class as well as the base request class; the key is obtained from https://datagolf.com/api-access. 
 
 ```
-from datagolf.api import DgAPI
-api = DgAPI(api_key='my_api_key')
+from datagolf.api import Api
+api = Api(api_key='my_api_key')
 print(api.get_players())
 ```
 

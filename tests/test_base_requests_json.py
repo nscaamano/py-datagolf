@@ -138,7 +138,7 @@ def historical_dfs_points_salaries(request_handler):
     return request_handler.historical_dfs_points_salaries(site='draftkings', event_id=14)
 
 
-class TestDgAPIRequestBase:
+class TestApiRequestBase:
 
     def test_player_list_type(self, player_list):
         assert isinstance(player_list, list)

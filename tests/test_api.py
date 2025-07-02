@@ -1,13 +1,13 @@
 import datetime
 import pytest
 
-from datagolf.api import DgAPI
+from datagolf.api import Api
 from datagolf.models import *
 
 
 @pytest.fixture
 def api():
-    return DgAPI()
+    return Api()
 
 @pytest.fixture
 def tony_data():
@@ -22,7 +22,7 @@ def ludvig_spieth_data():
     }
 
 
-class TestDgAPI:
+class TestApi:
 
     def test_get_players_name(self, api, tony_data):
         assert tony_data == api.get_players(player_name='tony finau')
@@ -274,7 +274,7 @@ class TestDgAPI:
             assert player.am == 1
 
 
-class TestDgAPIErrorHandling:
+class TestApiErrorHandling:
     """Test error handling and edge cases."""
     
     def test_empty_filter_results(self, api):
