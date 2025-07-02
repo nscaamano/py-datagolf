@@ -70,7 +70,7 @@ class DgAPI:
     
     _cache_refesh_key = 'last_refresh'
     
-    _base_endpoint_fields = ('tour', 'file_format')
+    _base_endpoint_params = ('tour', 'file_format')
     
     def __init__(self, api_key: Optional[str] = None):
             
@@ -210,13 +210,13 @@ class DgAPI:
         
         return DgAPI._filter_dg_objects(dg_objects=player_models, **filter_fields)
     
-    # TODO decorator to parse kwargs and assign endpoint fields based on lookup 
+    # TODO  to parse kwargs and assign endpoint fields based on lookup 
     # keep in mind nested lists need deep copy from cache
     def get_player_field_updates(
         self,
         **kwargs
     ) -> PlayerFieldUpdatesModel:
-        endpoint_fields = DgAPI._base_endpoint_fields
+        endpoint_fields = DgAPI._base_endpoint_params
         
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
@@ -247,7 +247,7 @@ class DgAPI:
         self,
         **kwargs
     ) -> TourSchedulesModel: 
-        endpoint_fields = DgAPI._base_endpoint_fields
+        endpoint_fields = DgAPI._base_endpoint_params
     
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
@@ -275,7 +275,7 @@ class DgAPI:
                 i think endpoint can return more than one course
         """
         
-        endpoint_fields = DgAPI._base_endpoint_fields
+        endpoint_fields = DgAPI._base_endpoint_params
         
         endpoint = self._request.live_hole_scoring_distributions 
         self._check_cache(endpoint, **kwargs)
