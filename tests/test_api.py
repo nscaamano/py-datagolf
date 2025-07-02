@@ -2,38 +2,7 @@ import datetime
 import pytest
 
 from datagolf.api import DgAPI
-from datagolf.models import (
-    PlayerModel, 
-    TourSchedulesModel, 
-    EventModel,
-    PlayerFieldUpdatesModel,
-    LiveHoleScoringDistributions,
-    # New models for all endpoints
-    DataGolfRankingsModel,
-    PlayerRankingModel,
-    PreTournamentPredictionsModel,
-    # BaselinePredictionModel,  # Used internally by PreTournamentPredictionsModel
-    # BaselineHistoryFitPredictionModel,  # Used internally by PreTournamentPredictionsModel
-    PreTournamentPredictionsArchiveModel,
-    PlayerSkillDecompositionsModel,
-    PlayerSkillRatingsModel,
-    DetailedApproachSkillModel,
-    LiveModelPredictionsModel,
-    LiveTournamentStatsModel,
-    LiveStatModel,
-    FantasyProjectionDefaultsModel,
-    OutrightOddsModel,
-    MatchupOddsAllPairingsModel,
-    HistoricalRawDataEventModel,
-    HistoricalRoundScoringDataModel,
-    HistoricalOddsEventModel,
-    HistoricalOutrightOddsModel,
-    HistoricalMatchupOddsModel,
-    HistoricalDfsEventModel,
-    HistoricalDfsPointsSalariesModel,
-    LeaderboardItemModel,
-    LeaderBoardModel,
-)
+from datagolf.models import *
 
 
 @pytest.fixture
