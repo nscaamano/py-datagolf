@@ -11,15 +11,15 @@ def api():
 
 @pytest.fixture
 def tony_data():
-    return {Player(dg_id=11676, player_name='Finau, Tony', country='United States', country_code='USA', amateur=0)}
+    return [Player(dg_id=11676, player_name='Finau, Tony', country='United States', country_code='USA', amateur=0)]
 
 
 @pytest.fixture
 def ludvig_spieth_data():
-    return {
+    return [
         Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE', amateur=0),
         Player(dg_id=14636, player_name='Spieth, Jordan',country='United States', country_code='USA', amateur=0)
-    }
+    ]
 
 
 class TestApi:
@@ -28,19 +28,19 @@ class TestApi:
         assert tony_data == api.get_players(player_name='tony finau')
 
     def test_get_players_name_no_spaces(self, api):
-        assert api.get_players(player_name='tonyfinau') == set()
+        assert api.get_players(player_name='tonyfinau') == []
 
     def test_get_player_one_name_one_result(self, api, tony_data):
         assert tony_data == api.get_players(player_name='finau')
 
     def test_get_player_one_name_multiple_results(self, api, tony_data):
-        test_data = {
+        test_data = [
             *tony_data,
             Player(dg_id=17159, player_name='Omuli, Tony',
                         country='Kenya', country_code='KEN', amateur=0),
             Player(dg_id=24515, player_name='Romo, Tony',
                         country='United States', country_code='USA', amateur=1),
-        }
+        ]
         assert test_data == api.get_players(player_name='Tony')
 
     def test_get_players_name_all_caps(self, api, tony_data):
@@ -50,12 +50,12 @@ class TestApi:
         assert ludvig_spieth_data == api.get_players(player_name=['ludvig', 'jordan spieth'])
 
     def test_get_players_id(self, api):
-        assert {Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE',
-                           amateur=0)} == api.get_players(dg_id=23950)
+        assert [Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE',
+                           amateur=0)] == api.get_players(dg_id=23950)
 
     def test_get_players_id_string(self, api):
-        assert {Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE',
-                           amateur=0)} == api.get_players(dg_id='23950')
+        assert [Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE',
+                           amateur=0)] == api.get_players(dg_id='23950')
 
     def test_get_players_ids(self, api, ludvig_spieth_data):
         assert ludvig_spieth_data == api.get_players(dg_id=['23950', 14636])
@@ -67,14 +67,14 @@ class TestApi:
         assert tony_data == api.get_players(dg_id=[11676, 11676])
 
     def test_get_players_multiple_params_with_duplicates(self, api, ludvig_spieth_data, tony_data):
-        test_data = {
+        test_data = [
             *ludvig_spieth_data,
             *tony_data,
             Player(dg_id=5321, player_name='Woods, Tiger',
                         country='United States', country_code='USA', amateur=0),
-        }
-        assert test_data == api.get_players(player_name=[
-                                'ludvig', 'spieth', 'finau'], dg_id=[5321, 23950])
+        ]
+        assert set(test_data) == set(api.get_players(player_name=[
+                                'ludvig', 'spieth', 'finau'], dg_id=[5321, 23950]))
 
     def test_get_tour_schedules_structure(self, api):
         """Test tour schedules returns proper structure without hardcoded dates."""
@@ -280,18 +280,18 @@ class TestApiErrorHandling:
     def test_empty_filter_results(self, api):
         """Test that filtering with no matches returns empty results gracefully."""
         result = api.get_players(player_name='nonexistentplayer12345')
-        assert isinstance(result, set)
+        assert isinstance(result, list)
         assert len(result) == 0
     
     def test_invalid_filter_field_ignored(self, api):
         """Test that invalid filter fields are handled gracefully."""
         result = api.get_players(invalid_field='test')
-        assert isinstance(result, set)
+        assert isinstance(result, list)
     
     def test_mixed_filter_types(self, api):
         """Test filtering with mixed data types."""
-        result = api.get_players(dg_id=['23950', 14636])  # Mixed string/int
-        assert isinstance(result, set)
+        result = api.get_players(dg_id=['23950', 14636])
+        assert isinstance(result, list)
     
     def test_caching_behavior(self, api):
         """Test that caching works correctly."""
@@ -301,13 +301,13 @@ class TestApiErrorHandling:
         
         # Results should be identical (from cache)
         assert result1 == result2
-        assert isinstance(result1, set)
-        assert isinstance(result2, set)
+        assert isinstance(result1, list)
+        assert isinstance(result2, list)
     
     def test_multiple_filter_parameters(self, api):
         """Test filtering with multiple parameters."""
         result = api.get_players(country='United States', amateur=0)
-        assert isinstance(result, set)
+        assert isinstance(result, list)
         
         # All results should match both filters
         for player in result:

@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import copy 
+from operator import attrgetter
 from typing import (
     List, 
     Dict,
@@ -14,6 +15,7 @@ from .models import *
 
 class Api:
     """TODO add docs
+      - decorator or something to write a function call to file ? 
     """
     
     _cache_refesh_key = 'last_refresh'
@@ -36,6 +38,14 @@ class Api:
     def verify_credentials(self):
         # TODO 
         pass
+    
+    
+    def remove_dups(func):
+        def wrapper(*args, **kwargs):
+            result = func(*args, **kwargs)
+            return list(dict.fromkeys(result))
+        return wrapper
+    
     
     def _check_cache(self, endpoint_func, **kwargs):
         endpoint_name = endpoint_func.__name__
@@ -91,7 +101,7 @@ class Api:
     def _filter_dg_objects(
         dg_objects: list, 
         **filter_fields
-    ) -> set[dict]:
+    ) -> list:
         
         if not filter_fields:
             return set(dg_objects)
@@ -123,23 +133,27 @@ class Api:
                 return all(n in misc_str_value_lower for n in split_str)
             return True
             
-        matched_objects = set()
+        #matched_objects = set()
+        matched_objects = []
         
         for k, v in separated_filters['int_fields'].items():
             for dg_object in dg_objects:
                 # TODO maybe don't pass tuple for misc_field
-                if match_int(dg_object, (k,v)): matched_objects.add(dg_object)
+                if match_int(dg_object, (k,v)): matched_objects.append(dg_object)
                         
         for k, v in separated_filters['str_fields'].items():
             for dg_object in dg_objects:
-                if match_string(dg_object, (k,v)): matched_objects.add(dg_object)
+                if match_string(dg_object, (k,v)): matched_objects.append(dg_object)
         
         return matched_objects
-            
+    
+    @remove_dups
     def get_players(
-        self,      
+        self,
+        sort_by: str = 'player_name',
+        asc: bool = True,
         **kwargs
-    ) -> set[Player]:
+    ) -> list[Player]:
         # TODO all endpoint use file_format, no need to specify here. 
         endpoint_fields = ('file_format')
         
@@ -147,7 +161,6 @@ class Api:
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields }
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields }
         
-        # Filter out invalid field names to handle gracefully
         valid_fields = self._get_valid_model_fields(Player)
         filter_fields = {k: v for k, v in filter_fields.items() if k in valid_fields}
         
@@ -156,11 +169,10 @@ class Api:
         
         player_models = [Player(**player) for player in self._cache[endpoint.__name__]]
         
-        # If no filter fields remain after validation, return all players as a set
         if not filter_fields:
-            return set(player_models)
+            return player_models
         
-        return Api._filter_dg_objects(dg_objects=player_models, **filter_fields)
+        return sorted(Api._filter_dg_objects(dg_objects=player_models, **filter_fields), key=attrgetter(sort_by), reverse=not asc)
     
     # TODO  to parse kwargs and assign endpoint fields based on lookup 
     # keep in mind nested lists need deep copy from cache
