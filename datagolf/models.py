@@ -3,7 +3,7 @@ from datetime import date, datetime
 from typing import List, Optional, Union, Set
 
 
-class PlayerModel(BaseModel):
+class Player(BaseModel):
     dg_id: int 
     player_name: str
     country: str
@@ -17,7 +17,7 @@ class PlayerModel(BaseModel):
         return hash((self.dg_id, self.player_name))
     
     
-class EventModel(BaseModel):
+class Event(BaseModel):
     '''
         event_id is not unique 
         'TBD' used for some
@@ -40,13 +40,13 @@ class EventModel(BaseModel):
     def __hash__(self):
         return hash((self.event_id, self.course_key, self.event_name))
 
-class TourSchedulesModel(BaseModel):
+class TourSchedules(BaseModel):
     current_season: int
-    schedule: Set[EventModel]
+    schedule: Set[Event]
     tour: str 
     
 
-class PlayerFieldUpdateModel(BaseModel):
+class PlayerFieldUpdate(BaseModel):
     am: bool
     country: str 
     course: str 
@@ -75,15 +75,15 @@ class PlayerFieldUpdateModel(BaseModel):
         return hash((self.dg_id, self.course))
     
 
-class PlayerFieldUpdatesModel(BaseModel):
+class PlayerFieldUpdates(BaseModel):
     current_round: int 
     event_name: str 
-    field: List[PlayerFieldUpdateModel]
+    field: List[PlayerFieldUpdate]
     last_updated: str 
     
     
 # Data Golf Rankings Models
-class PlayerRankingModel(BaseModel):
+class PlayerRanking(BaseModel):
     am: int  # 0 or 1
     country: str 
     datagolf_rank: int 
@@ -99,13 +99,13 @@ class PlayerRankingModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.datagolf_rank))
 
-class DataGolfRankingsModel(BaseModel):
+class DataGolfRankings(BaseModel):
     last_updated: str
     notes: str
-    rankings: List[PlayerRankingModel]
+    rankings: List[PlayerRanking]
 
 # Pre-Tournament Predictions Models
-class BaselinePredictionModel(BaseModel):
+class BaselinePrediction(BaseModel):
     am: int
     country: str 
     dg_id: int
@@ -123,7 +123,7 @@ class BaselinePredictionModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class BaselineHistoryFitPredictionModel(BaseModel):
+class BaselineHistoryFitPrediction(BaseModel):
     am: int
     country: str 
     dg_id: int
@@ -141,9 +141,9 @@ class BaselineHistoryFitPredictionModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class PreTournamentPredictionsModel(BaseModel):
-    baseline: List[BaselinePredictionModel]
-    baseline_history_fit: List[BaselineHistoryFitPredictionModel]
+class PreTournamentPredictions(BaseModel):
+    baseline: List[BaselinePrediction]
+    baseline_history_fit: List[BaselineHistoryFitPrediction]
     dead_heats: str
     event_name: str
     last_updated: str
@@ -183,7 +183,7 @@ class LiveHoleScoringDistributions(BaseModel):
     last_update: str
 
 # Pre-Tournament Predictions Archive Models
-class BaselinePredictionArchiveModel(BaseModel):
+class BaselinePredictionArchive(BaseModel):
     dg_id: int
     fin_text: str
     first_round_leader: float
@@ -202,7 +202,7 @@ class BaselinePredictionArchiveModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class BaselineHistoryFitPredictionArchiveModel(BaseModel):
+class BaselineHistoryFitPredictionArchive(BaseModel):
     dg_id: int
     fin_text: str
     first_round_leader: float
@@ -221,16 +221,16 @@ class BaselineHistoryFitPredictionArchiveModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class PreTournamentPredictionsArchiveModel(BaseModel):
-    baseline: List[BaselinePredictionArchiveModel]
-    baseline_history_fit: List[BaselineHistoryFitPredictionArchiveModel]
+class PreTournamentPredictionsArchive(BaseModel):
+    baseline: List[BaselinePredictionArchive]
+    baseline_history_fit: List[BaselineHistoryFitPredictionArchive]
     event_completed: date
     event_id: str
     event_name: str
     models_available: List[str]
 
 # Player Skill Decompositions Models
-class PlayerSkillDecompositionModel(BaseModel):
+class PlayerSkillDecomposition(BaseModel):
     age: int
     age_adjustment: float
     am: int
@@ -250,15 +250,15 @@ class PlayerSkillDecompositionModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class PlayerSkillDecompositionsModel(BaseModel):
+class PlayerSkillDecompositions(BaseModel):
     course_name: str
     event_name: str
     last_updated: str
     notes: str
-    players: List[PlayerSkillDecompositionModel]
+    players: List[PlayerSkillDecomposition]
 
 # Player Skill Ratings Models
-class PlayerSkillRatingModel(BaseModel):
+class PlayerSkillRating(BaseModel):
     dg_id: int
     driving_acc: float
     driving_dist: float
@@ -275,12 +275,12 @@ class PlayerSkillRatingModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class PlayerSkillRatingsModel(BaseModel):
+class PlayerSkillRatings(BaseModel):
     last_updated: str
-    players: List[PlayerSkillRatingModel]
+    players: List[PlayerSkillRating]
 
 # Detailed Approach Skill Models
-class ApproachSkillDataModel(BaseModel):
+class ApproachSkillData(BaseModel):
     # Note: This model has many yardage/lie specific fields
     # Sample fields from fixture data
     dg_id: Optional[int] = None
@@ -293,13 +293,13 @@ class ApproachSkillDataModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name)) if self.dg_id and self.player_name else hash(id(self))
 
-class DetailedApproachSkillModel(BaseModel):
-    data: List[ApproachSkillDataModel]
+class DetailedApproachSkill(BaseModel):
+    data: List[ApproachSkillData]
     last_updated: str
     time_period: str
 
 # Live Model Predictions Models
-class LivePredictionModel(BaseModel):
+class LivePrediction(BaseModel):
     R1: Optional[int]
     R2: Optional[int]
     R3: Optional[int]
@@ -326,12 +326,12 @@ class LivePredictionModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class LiveModelPredictionsModel(BaseModel):
-    data: List[LivePredictionModel]
+class LiveModelPredictions(BaseModel):
+    data: List[LivePrediction]
     info: dict  # Info structure varies
 
 # Live Tournament Stats Models
-class LiveStatModel(BaseModel):
+class LiveStat(BaseModel):
     course: Optional[str]        # null for withdrawn players
     dg_id: int
     player_name: str
@@ -352,16 +352,16 @@ class LiveStatModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class LiveTournamentStatsModel(BaseModel):
+class LiveTournamentStats(BaseModel):
     course_name: str
     event_name: str
     last_updated: str # TODO should these be timestamp type ?
-    live_stats: List[LiveStatModel]
+    live_stats: List[LiveStat]
     stat_display: str
     stat_round: str
 
 # Fantasy Projection Defaults Models
-class FantasyProjectionModel(BaseModel):
+class FantasyProjection(BaseModel):
     dg_id: int
     early_late_wave: int
     player_name: str
@@ -379,27 +379,27 @@ class FantasyProjectionModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class FantasyProjectionDefaultsModel(BaseModel):
+class FantasyProjectionDefaults(BaseModel):
     event_name: str
     last_updated: str
     note: str
-    projections: List[FantasyProjectionModel]
+    projections: List[FantasyProjection]
     site: str
     slate: str
     tour: str
 
 # Betting Tools Models
-class DataGolfOddsModel(BaseModel):
+class DataGolfOdds(BaseModel):
     """DataGolf's own odds predictions."""
     baseline: Optional[float]
     baseline_history_fit: Optional[float]
 
-class OutrightOddModel(BaseModel):
+class OutrightOdd(BaseModel):
     """Individual player's odds across all sportsbooks."""
     # Required fields that are always present
     dg_id: int
     player_name: str
-    datagolf: DataGolfOddsModel
+    datagolf: DataGolfOdds
     
     # Optional sportsbook fields - these vary by availability
     bet365: Optional[float] = None
@@ -431,25 +431,25 @@ class OutrightOddModel(BaseModel):
         exclude_fields = {'dg_id', 'player_name', 'datagolf'}
         return {k: v for k, v in self.__dict__.items() if k not in exclude_fields and v is not None}
 
-class OutrightOddsModel(BaseModel):
+class OutrightOdds(BaseModel):
     books_offering: List[str]
     event_name: str
     last_updated: str
     market: str
     #notes: Optional[str] = None  # Sometimes missing
-    odds: List[OutrightOddModel]
+    odds: List[OutrightOdd]
 
-class PlayerPairingModel(BaseModel):
+class PlayerPairing(BaseModel):
     dg_id: int
     name: str
     odds: float
 
-class MatchupPairingModel(BaseModel):
+class MatchupPairing(BaseModel):
     course: str
     group: int
-    p1: PlayerPairingModel
-    p2: PlayerPairingModel
-    p3: PlayerPairingModel
+    p1: PlayerPairing
+    p2: PlayerPairing
+    p3: PlayerPairing
     start_hole: int
     teetime: str
     
@@ -459,14 +459,14 @@ class MatchupPairingModel(BaseModel):
     def __hash__(self):
         return hash((self.group, self.p1.dg_id, self.p2.dg_id, self.p3.dg_id))
 
-class MatchupOddsAllPairingsModel(BaseModel):
+class MatchupOddsAllPairings(BaseModel):
     event_name: str
     last_update: str
-    pairings: List[MatchupPairingModel]
+    pairings: List[MatchupPairing]
     round: int
 
 # Historical Data Models
-class HistoricalRawDataEventModel(BaseModel):
+class HistoricalRawDataEvent(BaseModel):
     calendar_year: int
     date: str
     event_id: int
@@ -481,7 +481,7 @@ class HistoricalRawDataEventModel(BaseModel):
     def __hash__(self):
         return hash((self.event_id, self.calendar_year, self.tour))
 
-class RoundStatsModel(BaseModel):
+class RoundStats(BaseModel):
     birdies: int
     bogies: int
     course_name: str
@@ -501,14 +501,14 @@ class RoundStatsModel(BaseModel):
     scrambling: float
     # Note: Many more SG fields exist
 
-class PlayerRoundScoreModel(BaseModel):
+class PlayerRoundScore(BaseModel):
     dg_id: int
     fin_text: str
     player_name: str
-    round_1: Optional[RoundStatsModel]
-    round_2: Optional[RoundStatsModel]
-    round_3: Optional[RoundStatsModel]
-    round_4: Optional[RoundStatsModel]
+    round_1: Optional[RoundStats]
+    round_2: Optional[RoundStats]
+    round_3: Optional[RoundStats]
+    round_4: Optional[RoundStats]
     
     def __getitem__(self, item):
         return getattr(self, item)
@@ -516,18 +516,18 @@ class PlayerRoundScoreModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class HistoricalRoundScoringDataModel(BaseModel):
+class HistoricalRoundScoringData(BaseModel):
     event_completed: str
     event_id: str
     event_name: str
-    scores: List[PlayerRoundScoreModel]
+    scores: List[PlayerRoundScore]
     season: int
     sg_categories: str
     tour: str
     traditional_stats: str
     year: int
 
-class HistoricalOddsEventModel(BaseModel):
+class HistoricalOddsEvent(BaseModel):
     archived_preds: str
     calendar_year: int
     event_id: int
@@ -541,7 +541,7 @@ class HistoricalOddsEventModel(BaseModel):
     def __hash__(self):
         return hash((self.event_id, self.calendar_year))
 
-class HistoricalOutrightOddModel(BaseModel):
+class HistoricalOutrightOdd(BaseModel):
     bet_outcome_numeric: int
     bet_outcome_text: str
     close_odds: float
@@ -558,17 +558,17 @@ class HistoricalOutrightOddModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class HistoricalOutrightOddsModel(BaseModel):
+class HistoricalOutrightOdds(BaseModel):
     book: str
     event_completed: str
     event_id: str
     event_name: str
     market: str
-    odds: List[HistoricalOutrightOddModel]
+    odds: List[HistoricalOutrightOdd]
     season: int
     year: int
 
-class HistoricalMatchupOddModel(BaseModel):
+class HistoricalMatchupOdd(BaseModel):
     bet_type: str
     close_time: str
     open_time: str
@@ -594,16 +594,16 @@ class HistoricalMatchupOddModel(BaseModel):
     def __hash__(self):
         return hash((self.p1_dg_id, self.p2_dg_id, self.p3_dg_id))
 
-class HistoricalMatchupOddsModel(BaseModel):
+class HistoricalMatchupOdds(BaseModel):
     book: str
     event_completed: str
     event_id: str
     event_name: str
-    odds: List[HistoricalMatchupOddModel]
+    odds: List[HistoricalMatchupOdd]
     season: int
     year: int
 
-class HistoricalDfsEventModel(BaseModel):
+class HistoricalDfsEvent(BaseModel):
     calendar_year: int
     date: str
     dk_ownerships: str
@@ -620,7 +620,7 @@ class HistoricalDfsEventModel(BaseModel):
     def __hash__(self):
         return hash((self.event_id, self.calendar_year, self.tour))
 
-class DfsPlayerPointsModel(BaseModel):
+class DfsPlayerPoints(BaseModel):
     bogey_free_pts: int
     dg_id: int
     fin_text: str
@@ -640,8 +640,8 @@ class DfsPlayerPointsModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
 
-class HistoricalDfsPointsSalariesModel(BaseModel):
-    dfs_points: List[DfsPlayerPointsModel]
+class HistoricalDfsPointsSalaries(BaseModel):
+    dfs_points: List[DfsPlayerPoints]
     event_completed: str
     event_id: str
     event_name: str
@@ -651,7 +651,7 @@ class HistoricalDfsPointsSalariesModel(BaseModel):
     tour: str
     year: int
 
-class LeaderboardItemModel(BaseModel):
+class LeaderboardItem(BaseModel):
     """Individual leaderboard entry with essential player information."""
     player_name: str
     dg_id: int
@@ -665,62 +665,62 @@ class LeaderboardItemModel(BaseModel):
     def __hash__(self):
         return hash((self.dg_id, self.player_name))
     
-class LeaderBoardModel(BaseModel):
+class LeaderBoard(BaseModel):
     course_name: str
     event_name: str 
     last_updated: str 
-    items: List[LeaderboardItemModel]
+    items: List[LeaderboardItem]
 
 
 __all__ = [
-    'ApproachSkillDataModel',
-    'BaselineHistoryFitPredictionArchiveModel', 
-    'BaselineHistoryFitPredictionModel',
-    'BaselinePredictionArchiveModel',
-    'BaselinePredictionModel',
-    'DataGolfOddsModel',
-    'DataGolfRankingsModel', 
-    'DetailedApproachSkillModel',
-    'DfsPlayerPointsModel',
-    'EventModel',
-    'FantasyProjectionDefaultsModel',
-    'FantasyProjectionModel',
-    'HistoricalDfsEventModel',
-    'HistoricalDfsPointsSalariesModel',
-    'HistoricalMatchupOddModel',
-    'HistoricalMatchupOddsModel',
-    'HistoricalOddsEventModel',
-    'HistoricalOutrightOddModel', 
-    'HistoricalOutrightOddsModel',
-    'HistoricalRawDataEventModel',
-    'HistoricalRoundScoringDataModel',
-    'LeaderBoardModel',
-    'LeaderboardItemModel',
+    'ApproachSkillData',
+    'BaselineHistoryFitPredictionArchive', 
+    'BaselineHistoryFitPrediction',
+    'BaselinePredictionArchive',
+    'BaselinePrediction',
+    'DataGolfOdds',
+    'DataGolfRankings', 
+    'DetailedApproachSkill',
+    'DfsPlayerPoints',
+    'Event',
+    'FantasyProjectionDefaults',
+    'FantasyProjection',
+    'HistoricalDfsEvent',
+    'HistoricalDfsPointsSalaries',
+    'HistoricalMatchupOdd',
+    'HistoricalMatchupOdds',
+    'HistoricalOddsEvent',
+    'HistoricalOutrightOdd', 
+    'HistoricalOutrightOdds',
+    'HistoricalRawDataEvent',
+    'HistoricalRoundScoringData',
+    'LeaderBoard',
+    'LeaderboardItem',
     'LiveHoleScoringCourseData',
     'LiveHoleScoringDistributions',
     'LiveHoleScoringHoleData', 
     'LiveHoleScoringRoundData',
     'LiveHoleScoringWaveData',
-    'LiveModelPredictionsModel',
-    'LivePredictionModel',
-    'LiveStatModel',
-    'LiveTournamentStatsModel',
-    'MatchupOddsAllPairingsModel',
-    'MatchupPairingModel',
-    'OutrightOddModel',
-    'OutrightOddsModel',
-    'PlayerFieldUpdateModel',
-    'PlayerFieldUpdatesModel', 
-    'PlayerModel',
-    'PlayerPairingModel',
-    'PlayerRankingModel',
-    'PlayerRoundScoreModel',
-    'PlayerSkillDecompositionModel',
-    'PlayerSkillDecompositionsModel',
-    'PlayerSkillRatingModel',
-    'PlayerSkillRatingsModel',
-    'PreTournamentPredictionsArchiveModel',
-    'PreTournamentPredictionsModel',
-    'RoundStatsModel',
-    'TourSchedulesModel',
+    'LiveModelPredictions',
+    'LivePrediction',
+    'LiveStat',
+    'LiveTournamentStats',
+    'MatchupOddsAllPairings',
+    'MatchupPairing',
+    'OutrightOdd',
+    'OutrightOdds',
+    'PlayerFieldUpdate',
+    'PlayerFieldUpdates', 
+    'Player',
+    'PlayerPairing',
+    'PlayerRanking',
+    'PlayerRoundScore',
+    'PlayerSkillDecomposition',
+    'PlayerSkillDecompositions',
+    'PlayerSkillRating',
+    'PlayerSkillRatings',
+    'PreTournamentPredictionsArchive',
+    'PreTournamentPredictions',
+    'RoundStats',
+    'TourSchedules',
 ]

@@ -11,14 +11,14 @@ def api():
 
 @pytest.fixture
 def tony_data():
-    return {PlayerModel(dg_id=11676, player_name='Finau, Tony', country='United States', country_code='USA', amateur=0)}
+    return {Player(dg_id=11676, player_name='Finau, Tony', country='United States', country_code='USA', amateur=0)}
 
 
 @pytest.fixture
 def ludvig_spieth_data():
     return {
-        PlayerModel(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE', amateur=0),
-        PlayerModel(dg_id=14636, player_name='Spieth, Jordan',country='United States', country_code='USA', amateur=0)
+        Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE', amateur=0),
+        Player(dg_id=14636, player_name='Spieth, Jordan',country='United States', country_code='USA', amateur=0)
     }
 
 
@@ -36,9 +36,9 @@ class TestDgAPI:
     def test_get_player_one_name_multiple_results(self, api, tony_data):
         test_data = {
             *tony_data,
-            PlayerModel(dg_id=17159, player_name='Omuli, Tony',
+            Player(dg_id=17159, player_name='Omuli, Tony',
                         country='Kenya', country_code='KEN', amateur=0),
-            PlayerModel(dg_id=24515, player_name='Romo, Tony',
+            Player(dg_id=24515, player_name='Romo, Tony',
                         country='United States', country_code='USA', amateur=1),
         }
         assert test_data == api.get_players(player_name='Tony')
@@ -50,11 +50,11 @@ class TestDgAPI:
         assert ludvig_spieth_data == api.get_players(player_name=['ludvig', 'jordan spieth'])
 
     def test_get_players_id(self, api):
-        assert {PlayerModel(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE',
+        assert {Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE',
                            amateur=0)} == api.get_players(dg_id=23950)
 
     def test_get_players_id_string(self, api):
-        assert {PlayerModel(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE',
+        assert {Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE',
                            amateur=0)} == api.get_players(dg_id='23950')
 
     def test_get_players_ids(self, api, ludvig_spieth_data):
@@ -70,7 +70,7 @@ class TestDgAPI:
         test_data = {
             *ludvig_spieth_data,
             *tony_data,
-            PlayerModel(dg_id=5321, player_name='Woods, Tiger',
+            Player(dg_id=5321, player_name='Woods, Tiger',
                         country='United States', country_code='USA', amateur=0),
         }
         assert test_data == api.get_players(player_name=[
@@ -79,7 +79,7 @@ class TestDgAPI:
     def test_get_tour_schedules_structure(self, api):
         """Test tour schedules returns proper structure without hardcoded dates."""
         result = api.get_tour_schedules(tour='pga')
-        assert isinstance(result, TourSchedulesModel)
+        assert isinstance(result, TourSchedules)
         assert hasattr(result, 'current_season')
         assert hasattr(result, 'schedule')
         assert hasattr(result, 'tour')
@@ -89,17 +89,17 @@ class TestDgAPI:
         
         if result.schedule:
             first_event = next(iter(result.schedule))
-            assert isinstance(first_event, EventModel)
+            assert isinstance(first_event, Event)
             assert hasattr(first_event, 'event_name')
             assert hasattr(first_event, 'course')
         
     def test_get_tour_schedules_filtering(self, api):
         """Test that tour schedules filtering works without exact data matches."""
         pga_result = api.get_tour_schedules(tour='pga')
-        assert isinstance(pga_result, TourSchedulesModel)
+        assert isinstance(pga_result, TourSchedules)
         
         masters_result = api.get_tour_schedules(event_name='masters')
-        assert isinstance(masters_result, TourSchedulesModel)
+        assert isinstance(masters_result, TourSchedules)
         
         if masters_result.schedule:
             found_masters = any('masters' in event.event_name.lower() for event in masters_result.schedule)
@@ -107,14 +107,14 @@ class TestDgAPI:
     
     def test_get_player_field_updates(self, api):
         result = api.get_player_field_updates()
-        assert isinstance(result, PlayerFieldUpdatesModel)
+        assert isinstance(result, PlayerFieldUpdates)
         assert hasattr(result, 'field')
         assert hasattr(result, 'event_name')
         assert hasattr(result, 'current_round')
         
     def test_get_player_field_updates_str_filter_field(self, api):
         result = api.get_player_field_updates(country='USA')
-        assert isinstance(result, PlayerFieldUpdatesModel)
+        assert isinstance(result, PlayerFieldUpdates)
         
         for player in result.field:
             assert player.country == 'USA'
@@ -128,66 +128,66 @@ class TestDgAPI:
         
     def test_get_data_golf_rankings(self, api):
         result = api.get_data_golf_rankings()
-        assert isinstance(result, DataGolfRankingsModel)
+        assert isinstance(result, DataGolfRankings)
         assert hasattr(result, 'rankings')
         assert hasattr(result, 'last_updated')
         assert len(result.rankings) > 0
-        assert isinstance(result.rankings[0], PlayerRankingModel)
+        assert isinstance(result.rankings[0], PlayerRanking)
     
     def test_get_pre_tournament_predictions(self, api):
         result = api.get_pre_tournament_predictions()
-        assert isinstance(result, PreTournamentPredictionsModel)
+        assert isinstance(result, PreTournamentPredictions)
         assert hasattr(result, 'baseline')
         assert hasattr(result, 'baseline_history_fit')
         assert hasattr(result, 'event_name')
     
     def test_get_pre_tournament_predictions_archive(self, api):
         result = api.get_pre_tournament_predictions_archive()
-        assert isinstance(result, PreTournamentPredictionsArchiveModel)
+        assert isinstance(result, PreTournamentPredictionsArchive)
         assert hasattr(result, 'baseline')
         assert hasattr(result, 'event_name')
     
     def test_get_player_skill_decompositions(self, api):
         result = api.get_player_skill_decompositions()
-        assert isinstance(result, PlayerSkillDecompositionsModel)
+        assert isinstance(result, PlayerSkillDecompositions)
         assert hasattr(result, 'players')
         assert hasattr(result, 'event_name')
     
     def test_get_player_skill_ratings(self, api):
         result = api.get_player_skill_ratings()
-        assert isinstance(result, PlayerSkillRatingsModel)
+        assert isinstance(result, PlayerSkillRatings)
         assert hasattr(result, 'players')
         assert hasattr(result, 'last_updated')
     
     def test_get_detailed_approach_skill(self, api):
         result = api.get_detailed_approach_skill()
-        assert isinstance(result, DetailedApproachSkillModel)
+        assert isinstance(result, DetailedApproachSkill)
         assert hasattr(result, 'data')
         assert hasattr(result, 'time_period')
     
     def test_get_live_model_predictions(self, api):
         result = api.get_live_model_predictions()
-        assert isinstance(result, LiveModelPredictionsModel)
+        assert isinstance(result, LiveModelPredictions)
         assert hasattr(result, 'data')
         assert hasattr(result, 'info')
     
     def test_get_live_tournament_stats(self, api):
         result = api.get_live_tournament_stats()
-        assert isinstance(result, LiveTournamentStatsModel)
+        assert isinstance(result, LiveTournamentStats)
         assert hasattr(result, 'live_stats')
         assert hasattr(result, 'event_name')
         if result.live_stats:
-            assert isinstance(result.live_stats[0], LiveStatModel)
+            assert isinstance(result.live_stats[0], LiveStat)
     
     def test_get_fantasy_projection_defaults(self, api):
         result = api.get_fantasy_projection_defaults()
-        assert isinstance(result, FantasyProjectionDefaultsModel)
+        assert isinstance(result, FantasyProjectionDefaults)
         assert hasattr(result, 'projections')
         assert hasattr(result, 'site')
     
     def test_get_outright_odds(self, api):
         result = api.get_outright_odds()
-        assert isinstance(result, OutrightOddsModel)
+        assert isinstance(result, OutrightOdds)
         assert hasattr(result, 'odds')
         assert hasattr(result, 'market')
     
@@ -198,7 +198,7 @@ class TestDgAPI:
     
     def test_get_matchup_odds_all_pairings(self, api):
         result = api.get_matchup_odds_all_pairings()
-        assert isinstance(result, MatchupOddsAllPairingsModel)
+        assert isinstance(result, MatchupOddsAllPairings)
         assert hasattr(result, 'pairings')
         assert hasattr(result, 'event_name')
     
@@ -206,11 +206,11 @@ class TestDgAPI:
         result = api.get_historical_raw_data_event_ids()
         assert isinstance(result, set)
         if result:
-            assert isinstance(next(iter(result)), HistoricalRawDataEventModel)
+            assert isinstance(next(iter(result)), HistoricalRawDataEvent)
     
     def test_get_historical_round_scoring_data(self, api):
         result = api.get_historical_round_scoring_data()
-        assert isinstance(result, HistoricalRoundScoringDataModel)
+        assert isinstance(result, HistoricalRoundScoringData)
         assert hasattr(result, 'scores')
         assert hasattr(result, 'event_name')
     
@@ -218,17 +218,17 @@ class TestDgAPI:
         result = api.get_historical_odds_event_ids()
         assert isinstance(result, set)
         if result:
-            assert isinstance(next(iter(result)), HistoricalOddsEventModel)
+            assert isinstance(next(iter(result)), HistoricalOddsEvent)
     
     def test_get_historical_outright_odds(self, api):
         result = api.get_historical_outright_odds()
-        assert isinstance(result, HistoricalOutrightOddsModel)
+        assert isinstance(result, HistoricalOutrightOdds)
         assert hasattr(result, 'odds')
         assert hasattr(result, 'book')
     
     def test_get_historical_matchup_odds(self, api):
         result = api.get_historical_matchup_odds()
-        assert isinstance(result, HistoricalMatchupOddsModel)
+        assert isinstance(result, HistoricalMatchupOdds)
         assert hasattr(result, 'odds')
         assert hasattr(result, 'book')
     
@@ -236,25 +236,25 @@ class TestDgAPI:
         result = api.get_historical_dfs_event_ids()
         assert isinstance(result, set)
         if result:
-            assert isinstance(next(iter(result)), HistoricalDfsEventModel)
+            assert isinstance(next(iter(result)), HistoricalDfsEvent)
     
     def test_get_historical_dfs_points_salaries(self, api):
         result = api.get_historical_dfs_points_salaries()
-        assert isinstance(result, HistoricalDfsPointsSalariesModel)
+        assert isinstance(result, HistoricalDfsPointsSalaries)
         assert hasattr(result, 'dfs_points')
         assert hasattr(result, 'site')
     
     # Convenience method tests
     def test_get_leaderboard(self, api):
         result = api.get_leaderboard(size=10)
-        assert isinstance(result, LeaderBoardModel)
+        assert isinstance(result, LeaderBoard)
         assert len(result.items) <= 10
         if result:
-            assert isinstance(result.items[0], LeaderboardItemModel)
+            assert isinstance(result.items[0], LeaderboardItem)
     
     def test_get_player_live_stats(self, api):
         result = api.get_player_live_stats(player_id=18417)
-        assert result is None or isinstance(result, LiveStatModel)
+        assert result is None or isinstance(result, LiveStat)
     
     def test_get_player_live_score(self, api):
         result = api.get_player_live_score(player_id=18417)
@@ -270,7 +270,7 @@ class TestDgAPI:
         result = api.get_dg_rankings_amateurs()
         assert isinstance(result, list)
         for player in result:
-            assert isinstance(player, PlayerRankingModel)
+            assert isinstance(player, PlayerRanking)
             assert player.am == 1
 
 
