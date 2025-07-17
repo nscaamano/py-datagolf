@@ -133,17 +133,28 @@ class Api:
                 return all(n in misc_str_value_lower for n in split_str)
             return True
             
-        #matched_objects = set()
         matched_objects = []
         
-        for k, v in separated_filters['int_fields'].items():
-            for dg_object in dg_objects:
-                # TODO maybe don't pass tuple for misc_field
-                if match_int(dg_object, (k,v)): matched_objects.append(dg_object)
-                        
-        for k, v in separated_filters['str_fields'].items():
-            for dg_object in dg_objects:
-                if match_string(dg_object, (k,v)): matched_objects.append(dg_object)
+        # Apply AND logic: each object must match ALL filters
+        for dg_object in dg_objects:
+            matches_all_filters = True
+            
+            # Check all integer field filters
+            for k, v in separated_filters['int_fields'].items():
+                if not match_int(dg_object, (k, v)):
+                    matches_all_filters = False
+                    break
+            
+            # Check all string field filters (only if int filters passed)
+            if matches_all_filters:
+                for k, v in separated_filters['str_fields'].items():
+                    if not match_string(dg_object, (k, v)):
+                        matches_all_filters = False
+                        break
+            
+            # Only add object if it matches ALL filters
+            if matches_all_filters:
+                matched_objects.append(dg_object)
         
         return matched_objects
     

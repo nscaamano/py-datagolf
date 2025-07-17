@@ -64,12 +64,10 @@ class TestApi:
     def test_get_players_duplicate_ids_list(self, api, tony_data):
         assert tony_data == api.get_players(dg_id=[11676, 11676])
 
-    def test_get_players_multiple_params_with_duplicates(self, api, ludvig_spieth_data, tony_data):
+    def test_get_players_multiple_params_with_duplicates(self, api):
+        # With AND logic between different filter types, only players matching BOTH name AND id filters should be returned
         test_data = [
-            *ludvig_spieth_data,
-            *tony_data,
-            Player(dg_id=5321, player_name='Woods, Tiger',
-                        country='United States', country_code='USA', amateur=0),
+            Player(dg_id=23950, player_name='Aberg, Ludvig', country='Sweden', country_code='SWE', amateur=0),
         ]
         assert set(test_data) == set(api.get_players(player_name=[
                                 'ludvig', 'spieth', 'finau'], dg_id=[5321, 23950]))
