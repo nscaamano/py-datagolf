@@ -172,7 +172,7 @@ class Api:
         if not filter_fields:
             return player_models
         
-        return sorted(Api._filter_dg_objects(dg_objects=player_models, **filter_fields), key=attrgetter(sort_by), reverse=not asc)
+        return sorted(Api._filter_dg_objects(dg_objects=player_models, **filter_fields), key=attrgetter(sort_by if sort_by in valid_fields else 'player_name'), reverse=not asc)
     
     # TODO  to parse kwargs and assign endpoint fields based on lookup 
     # keep in mind nested lists need deep copy from cache
@@ -403,21 +403,35 @@ class Api:
         )
         return LiveModelPredictions(**data)
     
-    def get_live_tournament_stats(self, **kwargs) -> LiveTournamentStats:
+    def get_live_tournament_stats(
+        self, 
+        sort_by: str = 'player_name',
+        asc: bool = True,
+        **kwargs,
+    ) -> LiveTournamentStats:
         """Returns live strokes-gained and traditional stats for PGA Tour Events."""
+        # TODO sort by position support 
         endpoint_fields = ('stats', 'round', 'display', 'file_format')
         filter_fields = {k: v for k,v in kwargs.items() if k not in endpoint_fields}
         kwargs = {k: v for k,v in kwargs.items() if k in endpoint_fields}
         
-        endpoint = self._request.live_tournament_stats
+        valid_fields = self._get_valid_model_fields(LiveStat) # what about the LiveStat ?
+        filter_fields = {k: v for k, v in filter_fields.items() if k in valid_fields}
+        
+        endpoint = self._request.live_tournament_stats  
         self._check_cache(endpoint, **kwargs)
         
         data = copy.deepcopy(self._cache[endpoint.__name__])
         
-        data['live_stats'] = Api._filter_dg_objects(
-            dg_objects=[LiveStat(**stat) for stat in data['live_stats']],
-            **filter_fields
+        data['live_stats'] = sorted(
+            Api._filter_dg_objects(
+                dg_objects=[LiveStat(**stat) for stat in data['live_stats']],
+                **filter_fields
+            ), 
+            key=attrgetter(sort_by if sort_by in valid_fields else 'player_name'), 
+            reverse=not asc
         )
+        
         return LiveTournamentStats(**data)
     
     def get_fantasy_projection_defaults(self, **kwargs) -> FantasyProjectionDefaults:

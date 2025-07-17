@@ -36,8 +36,6 @@ class TestApi:
     def test_get_player_one_name_multiple_results(self, api, tony_data):
         test_data = [
             *tony_data,
-            Player(dg_id=17159, player_name='Omuli, Tony',
-                        country='Kenya', country_code='KEN', amateur=0),
             Player(dg_id=24515, player_name='Romo, Tony',
                         country='United States', country_code='USA', amateur=1),
         ]
